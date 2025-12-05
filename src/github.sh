@@ -13,7 +13,7 @@ function github_upload_file () {
     local file="$1"
     local version="$2"
 
-    if [[ -n $GITHUB_TOKEN && -n ]]; then
+    if [[ -n $GITHUB_TOKEN ]]; then
         gh release upload "v$version" "$file" --clobber
     fi
 }
