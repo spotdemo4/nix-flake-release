@@ -27,6 +27,6 @@ jobs:
         uses: spotdemo4/nix-init@9d6be645ffe171f8c312749b8879b5a57260c481 # v1.9.0
 
       - name: Release
-        run: ./src/release.sh
-        env:
+        uses: spotdemo4/nix-flake-release@main
+        with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

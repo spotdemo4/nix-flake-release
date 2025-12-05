@@ -3,6 +3,8 @@
 
 set -e
 
+echo "starting"
+
 # make source imports work
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
@@ -31,7 +33,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
     nix_pkg_build "$PACKAGE"
 
     echo "$PACKAGE: probing"
-    
+
     # `mkDerivation`` attributes
     NAME=$(nix_pkg_name "$PACKAGE")
     VERSION=$(nix_pkg_version "$PACKAGE")
