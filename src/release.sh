@@ -29,8 +29,11 @@ for PACKAGE in "${PACKAGES[@]}"; do
         STORE_PATHS+=("$STORE_PATH")
     fi
 
+    echo "$PACKAGE: checking for release"
     NAME=$(nix_pkg_name "$PACKAGE")
     VERSION=$(nix_pkg_version "$PACKAGE")
+    github_release_create "$VERSION"
+
     echo "$PACKAGE: building '$NAME' '$VERSION'"
     nix_pkg_build "$PACKAGE"
 
