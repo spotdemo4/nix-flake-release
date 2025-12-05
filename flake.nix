@@ -123,7 +123,7 @@
           dev.script = "./src/release.sh";
         };
 
-        packages = rec {
+        packages = {
           default = pkgs.stdenv.mkDerivation (finalAttrs: {
             pname = "nix-flake-release";
             version = "0.0.1";
@@ -175,16 +175,16 @@
           });
 
           docker = pkgs.dockerTools.buildLayeredImage {
-            name = default.pname;
-            tag = default.version;
+            name = packages.default.pname;
+            tag = packages.default.version;
             created = "now";
-            meta = default.meta;
+            meta = packages.default.meta;
             contents = with pkgs; [
-              default
+              packages.default
               dockerTools.caCertificates
             ];
             config.Cmd = [
-              "${pkgs.lib.meta.getExe default}"
+              "${pkgs.lib.meta.getExe packages.default}"
             ];
           };
         };
