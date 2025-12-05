@@ -13,9 +13,9 @@ function github_upload_file () {
     local file="$1"
     local version="$2"
 
-    if [[ -n $GITHUB_TOKEN ]]; then
+    if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
         github_release_create "$version"
-        gh release upload "v$version" "$file" --clobber
+        gh release upload --repo "$GITHUB_REPOSITORY" "v$version" "$file" --clobber
     fi
 }
 

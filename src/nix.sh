@@ -3,6 +3,9 @@
 # https://github.com/NixOS/nix/issues/10202
 git config --global --add safe.directory "$(pwd)"
 
+# https://discourse.nixos.org/t/warning-about-home-ownership/52351
+export HOME=$(mktemp -d)
+
 NIX_ARGS=("--extra-experimental-features" "nix-command flakes" "--accept-flake-config" "--no-warn-dirty")
 
 function nix_system () {
