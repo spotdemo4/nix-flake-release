@@ -2,15 +2,6 @@ name: nix flake release
 description: release all packages in a nix flake
 author: trev
 
-inputs:
-  GITHUB_TOKEN:
-    description: github token
-    required: true
-
 runs:
   using: docker
   image: docker://ghcr.io/spotdemo4/nix-flake-release:0.2.2
-  env:
-    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-    GITHUB_ACTOR: ${{ github.actor }}
-    GITHUB_REPOSITORY: ${{ github.repository }}

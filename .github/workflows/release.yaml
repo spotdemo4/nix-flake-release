@@ -27,5 +27,3 @@ jobs:
 
       - name: Release
         uses: spotdemo4/nix-flake-release@9915ea404153fa7ef1944120c0f348a10a29aee0 # v0.2.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
