@@ -42,11 +42,13 @@
           default = pkgs.mkShell {
             packages = with pkgs; [
               # bash
-              gh
               file
-              zip
-              skopeo
+              gh
+              jq
+              mktemp
               shellcheck
+              skopeo
+              zip
 
               # util
               bumper
@@ -138,18 +140,11 @@
             ];
 
             runtimeInputs = with pkgs; [
-              # github deps
-              gh
-              skopeo
-
-              # nix deps
-              jq
-
-              # platform deps
               file
-
-              # util deps
+              gh
+              jq
               mktemp
+              skopeo
               zip
             ];
 
