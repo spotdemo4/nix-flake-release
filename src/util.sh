@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
 function archive () {
-    local source_path="$1"
-    local archive_path="$2"
+    local source="$1"
+    local name="$2"
     local platform="$3"
+    local tmpdir=$(mktemp -d)
 
     if [[ "$platform" == "windows"* ]]; then
-        zip -qr "${archive_path}.zip" "${source_path}" &> /dev/null
-        echo "${archive_path}.zip"
+        zip -qr "${tmpdir}/${name}.zip" "${source}" &> /dev/null
+        echo "${tmpdir}/${name}.zip"
     else
-        tar -cJhf "${archive_path}.tar.xz" "${source_path}" &> /dev/null
-        echo "${archive_path}.tar.xz"
+        tar -cJhf "${tmpdir}/${name}.tar.xz" "${source}" &> /dev/null
+        echo "${tmpdir}/${name}.tar.xz"
     fi
 }

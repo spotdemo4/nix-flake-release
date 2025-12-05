@@ -14,7 +14,6 @@ source "$DIR/util.sh"
 
 github_release_create
 
-BUILD_DIR=$(mktemp -d)
 NIX_SYSTEM=$(nix_system)
 readarray -t PACKAGES < <(nix_packages "$NIX_SYSTEM")
 
@@ -23,7 +22,7 @@ IMAGE_URLS=()
 for PACKAGE in "${PACKAGES[@]}"; do
     echo "$PACKAGE: evaluating" 
 
-    STORE_PATH=$(nix_pkg_path "${PACKAGE}")
+    STORE_PATH=$(nix_pkg_path "$PACKAGE")
     if [[ ${STORE_PATHS[*]} =~ $STORE_PATH ]]; then
         echo "$PACKAGE: already built, skipping"
         continue
@@ -31,31 +30,31 @@ for PACKAGE in "${PACKAGES[@]}"; do
         STORE_PATHS+=("$STORE_PATH")
     fi
 
-    NAME=$(nix_pkg_name "${PACKAGE}")
+    NAME=$(nix_pkg_name "$PACKAGE")
     echo "$PACKAGE: building '$NAME'"
-    nix_pkg_build "${PACKAGE}"
+    nix_pkg_build "$PACKAGE"
 
     echo "$PACKAGE: probing '$NAME'"
-    IMAGE_NAME=$(nix_pkg_image_name "${PACKAGE}")
-    IMAGE_TAG=$(nix_pkg_image_tag "${PACKAGE}")
-    EXE=$(nix_pkg_exe "${PACKAGE}")
+    IMAGE_NAME=$(nix_pkg_image_name "$PACKAGE")
+    IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
+    EXE=$(nix_pkg_exe "$PACKAGE")
     PLATFORM=$(detect_platform "$EXE")
 
     if [[ -f "$STORE_PATH" && -n $IMAGE_NAME && -n $IMAGE_TAG ]]; then
-        echo "$PACKAGE: detected as docker image"
+        echo "$PACKAGE: detected as image"
 
         echo "$PACKAGE: loading to '$IMAGE_NAME:$IMAGE_TAG'"
-        docker load -i "$STORE_PATH" &> /dev/null
+        podman load -i "$STORE_PATH" &> /dev/null
 
         echo "$PACKAGE: uploading"
-        IMAGE_URL=$(github_upload_image "${IMAGE_NAME}" "${IMAGE_TAG}")
+        IMAGE_URL=$(github_upload_image "$IMAGE_NAME" "$IMAGE_TAG")
         IMAGE_URLS+=("$IMAGE_URL")
 
     elif [[ -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then
         echo "$PACKAGE: detected as executable '$(basename "$EXE")' for '$PLATFORM'"
 
         echo "$PACKAGE: archiving"
-        ARCHIVE=$(archive "$EXE" "$BUILD_DIR/${NAME}-${PLATFORM}" "$PLATFORM")
+        ARCHIVE=$(archive "$EXE" "$NAME-$PLATFORM" "$PLATFORM")
 
         echo "$PACKAGE: uploading"
         github_upload_file "$ARCHIVE"
@@ -63,8 +62,11 @@ for PACKAGE in "${PACKAGES[@]}"; do
     elif [[ -d "$STORE_PATH" && -f "$EXE" ]]; then
         echo "$PACKAGE: detected as script '$(basename "$EXE")'"
 
+        echo "$PACKAGE: bundling"
+        BUNDLE=$(nix_bundle "$PACKAGE")
+
         echo "$PACKAGE: archiving"
-        ARCHIVE=$(archive "$STORE_PATH" "$BUILD_DIR/${NAME}" "$(host_platform)")
+        ARCHIVE=$(archive "$BUNDLE" "$NAME" "$(host_platform)")
 
         echo "$PACKAGE: uploading"
         github_upload_file "$ARCHIVE"

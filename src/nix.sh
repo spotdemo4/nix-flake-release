@@ -38,3 +38,10 @@ function nix_pkg_exe () {
     local package="$1"
     nix eval --raw --impure ".#${package}" --apply "(import <nixpkgs> {}).lib.meta.getExe" 2> /dev/null || echo ""
 }
+
+function nix_bundle () {
+    local package="$1"
+    local tmpdir=$(mktemp -u)
+    nix bundle --bundler github:DavHau/nix-portable ".#${package}" -o "${tmpdir}" &> /dev/null || echo ""
+    echo "${tmpdir}"
+}

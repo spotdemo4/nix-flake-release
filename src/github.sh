@@ -2,7 +2,7 @@
 
 if [[ -n $GITHUB_TOKEN && -n $GITHUB_ACTOR ]]; then
     echo "logging into ghcr.io"
-    echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+    echo "${GITHUB_TOKEN}" | podman login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 fi
 
 function github_release_create () {
@@ -20,15 +20,15 @@ function github_upload_file () {
     fi
 }
 
-# uploads a docker image to the GitHub Container Registry
+# uploads a podman image to the GitHub Container Registry
 function github_upload_image () {
     local name="$1"
     local tag="$2"
 
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_ACTOR && -n $GITHUB_REPOSITORY ]]; then
         local IMAGE_URL="ghcr.io/${GITHUB_REPOSITORY}:$tag"
-        docker tag "$name:$tag" "$IMAGE_URL" &> /dev/null
-        docker push "$IMAGE_URL" &> /dev/null
+        podman tag "$name:$tag" "$IMAGE_URL" &> /dev/null
+        podman push "$IMAGE_URL" &> /dev/null
 
         echo "${IMAGE_URL}"
     fi
@@ -46,17 +46,17 @@ function github_upload_manifest () {
             MANIFEST="ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF_NAME#v}"
 
             for IMAGE in "${images[@]}"; do
-                docker manifest create --amend "${LATEST}" "${IMAGE}" &> /dev/null
-                docker manifest create --amend "${MANIFEST}" "${IMAGE}" &> /dev/null
+                podman manifest create --amend "${LATEST}" "${IMAGE}" &> /dev/null
+                podman manifest create --amend "${MANIFEST}" "${IMAGE}" &> /dev/null
             done
 
-            docker manifest push "${LATEST}" &> /dev/null
-            docker manifest push "${MANIFEST}" &> /dev/null
+            podman manifest push "${LATEST}" &> /dev/null
+            podman manifest push "${MANIFEST}" &> /dev/null
 
         # else just tag and push the single image as latest
         elif [[ ${#images[@]} -eq 1 ]]; then
-            docker tag "${images[0]}" "${LATEST}" &> /dev/null
-            docker push "${LATEST}" &> /dev/null
+            podman tag "${images[0]}" "${LATEST}" &> /dev/null
+            podman push "${LATEST}" &> /dev/null
         fi
     fi
 
@@ -65,11 +65,11 @@ function github_upload_manifest () {
         LATEST="ghcr.io/${GITHUB_REPOSITORY}:latest"
 
         for IMAGE in "${images[@]}"; do
-            docker manifest create --amend "${NEXT}" "${IMAGE}" &> /dev/null
-            docker manifest create --amend "${LATEST}" "${IMAGE}" &> /dev/null
+            podman manifest create --amend "${NEXT}" "${IMAGE}" &> /dev/null
+            podman manifest create --amend "${LATEST}" "${IMAGE}" &> /dev/null
         done
 
-        docker manifest push "${NEXT}" &> /dev/null
-        docker manifest push "${LATEST}" &> /dev/null
+        podman manifest push "${NEXT}" &> /dev/null
+        podman manifest push "${LATEST}" &> /dev/null
     fi
 }

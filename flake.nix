@@ -45,7 +45,7 @@
               gh
               file
               zip
-              docker
+              podman
               shellcheck
 
               # util
@@ -138,12 +138,12 @@
             ];
 
             runtimeInputs = with pkgs; [
-              git
               gh
               nix
               file
+              mktemp
+              podman
               zip
-              docker
             ];
 
             unpackPhase = ''
@@ -174,7 +174,7 @@
             };
           });
 
-          docker = pkgs.dockerTools.buildLayeredImage {
+          image = pkgs.dockerTools.buildLayeredImage {
             name = packages.default.pname;
             tag = packages.default.version;
             created = "now";
