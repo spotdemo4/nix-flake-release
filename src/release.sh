@@ -29,27 +29,27 @@ for PACKAGE in "${PACKAGES[@]}"; do
         STORE_PATHS+=("$STORE_PATH")
     fi
 
-    echo "$PACKAGE: checking for release"
-    NAME=$(nix_pkg_name "$PACKAGE")
-    VERSION=$(nix_pkg_version "$PACKAGE")
-    github_release_create "$VERSION"
-
-    echo "$PACKAGE: building '$NAME' '$VERSION'"
+    echo "$PACKAGE: building"
     nix_pkg_build "$PACKAGE"
 
-    echo "$PACKAGE: probing '$NAME'"
-    IMAGE_NAME=$(nix_pkg_image_name "$PACKAGE")
-    IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
+    echo "$PACKAGE: probing"
+    # `mkDerivation`` attributes
+    NAME=$(nix_pkg_name "$PACKAGE")
+    VERSION=$(nix_pkg_version "$PACKAGE")
     EXE=$(nix_pkg_exe "$PACKAGE")
     PLATFORM=$(detect_platform "$EXE")
 
-    if [[ -f "$STORE_PATH" && -n $IMAGE_NAME && -n $IMAGE_TAG ]]; then
-        echo "$PACKAGE: detected as image"
+    # `dockerTools.buildLayeredImage` attributes
+    IMAGE_NAME=$(nix_pkg_image_name "$PACKAGE")
+    IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
+
+    if [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -f "$STORE_PATH" ]]; then
+        echo "$PACKAGE: detected as image '$IMAGE_NAME:$IMAGE_TAG'"
 
         echo "$PACKAGE: uploading"
         github_upload_image "$STORE_PATH" "$IMAGE_TAG"
 
-    elif [[ -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then
+    elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then
         echo "$PACKAGE: detected as executable '$(basename "$EXE")' for '$PLATFORM'"
 
         echo "$PACKAGE: archiving"
@@ -58,8 +58,8 @@ for PACKAGE in "${PACKAGES[@]}"; do
         echo "$PACKAGE: uploading"
         github_upload_file "$ARCHIVE" "$VERSION"
 
-    elif [[ -d "$STORE_PATH" && -f "$EXE" ]]; then
-        echo "$PACKAGE: detected as script '$(basename "$EXE")'"
+    elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
+        echo "$PACKAGE: detected as derivation '${NAME}'"
 
         echo "$PACKAGE: bundling"
         BUNDLE=$(nix_bundle "$PACKAGE")
@@ -71,7 +71,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
         github_upload_file "$ARCHIVE" "$VERSION"
 
     else
-        echo "$PACKAGE: unknown package type"
+        echo "$PACKAGE: unknown type"
     fi
 
     echo "$PACKAGE: done"

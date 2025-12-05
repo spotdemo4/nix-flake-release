@@ -16,13 +16,12 @@ function nix_pkg_path () {
 
 function nix_pkg_name () {
     local package="$1"
-    nix eval --raw ".#${package}.name"
+    nix eval --raw ".#${package}.name" 2> /dev/null || echo ""
 }
-
 
 function nix_pkg_version () {
     local package="$1"
-    nix eval --raw ".#${package}.version"
+    nix eval --raw ".#${package}.version" 2> /dev/null || echo ""
 }
 
 function nix_pkg_build () {
