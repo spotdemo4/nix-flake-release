@@ -18,7 +18,7 @@ function github_upload_file () {
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
         github_release_create "$version"
 
-        print "uploading $file to release v$version at $GITHUB_REPOSITORY"
+        print "uploading to release v$version at $GITHUB_REPOSITORY"
         gh release upload --repo "$GITHUB_REPOSITORY" "v$version" "$file" --clobber
     fi
 }
@@ -29,7 +29,7 @@ function github_upload_image () {
     local tag="$2"
 
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_ACTOR && -n $GITHUB_REPOSITORY ]]; then
-        print "uploading image $path to ghcr.io/${GITHUB_REPOSITORY}:${tag}"
+        print "uploading to ghcr.io/${GITHUB_REPOSITORY}:${tag}"
 
         skopeo --insecure-policy copy \
             --dest-creds "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
