@@ -3,12 +3,13 @@ description: release all packages in a nix flake
 author: trev
 
 inputs:
-  GITHUB_TOKEN:
+  github_token:
     description: github token
-    required: true
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: docker
   image: docker://ghcr.io/spotdemo4/nix-flake-release:0.3.0
   env:
-    GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    GITHUB_TOKEN: ${{ inputs.github_token }}
