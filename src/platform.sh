@@ -31,6 +31,8 @@ detect_platform () {
     else
         arch="unknown"
     fi
+
+    echo "platform: ${os}-${arch}" >&2
     
     echo "${os}-${arch}"
 }

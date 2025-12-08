@@ -53,7 +53,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
         github_upload_image "$STORE_PATH" "$IMAGE_TAG"
 
     # `dockerTools.streamLayeredImage`
-    elif [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -d "$STORE_PATH" && -f "$EXE" && "$EXE" == *".sh" ]]; then
+    elif [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -f "$STORE_PATH" && -x "$STORE_PATH" ]]; then
         echo "detected as image '$IMAGE_NAME:$IMAGE_TAG'" >&2
 
         print "uploading"
