@@ -5,7 +5,12 @@ GLOBAL_PACKAGE="default"
 function print () {
     local message="$1"
 
-    printf '%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+    if [[ "${CI}" == "true" ]]; then
+        printf "::endgroup::\n" >&2
+        printf '::group::%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+    else
+        printf '%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+    fi
 }
 
 function file_info () {
