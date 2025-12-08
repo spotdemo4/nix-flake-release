@@ -4,9 +4,8 @@ function github_release_create () {
     local version="$1"
 
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
-        print "creating release v$version at $GITHUB_REPOSITORY"
-
-        gh release create --repo "$GITHUB_REPOSITORY" "v$version" --generate-notes || true
+        echo "creating release v$version at $GITHUB_REPOSITORY" >&2
+        gh release create --repo "$GITHUB_REPOSITORY" "v$version" --generate-notes >&2 || true
     fi
 }
 
@@ -18,8 +17,8 @@ function github_upload_file () {
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
         github_release_create "$version"
 
-        print "uploading to release v$version at $GITHUB_REPOSITORY"
-        gh release upload --repo "$GITHUB_REPOSITORY" "v$version" "$file" --clobber
+        echo "uploading to release v$version at $GITHUB_REPOSITORY" >&2
+        gh release upload --repo "$GITHUB_REPOSITORY" "v$version" "$file" --clobber >&2
     fi
 }
 
@@ -29,10 +28,26 @@ function github_upload_image () {
     local tag="$2"
 
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_ACTOR && -n $GITHUB_REPOSITORY ]]; then
-        print "uploading to ghcr.io/${GITHUB_REPOSITORY}:${tag}"
-
+        echo "uploading to ghcr.io/${GITHUB_REPOSITORY}:${tag}" >&2
         skopeo --insecure-policy copy \
             --dest-creds "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
-            "docker-archive:${path}" "docker://ghcr.io/${GITHUB_REPOSITORY}:${tag}"
+            "docker-archive:${path}" \
+            "docker://ghcr.io/${GITHUB_REPOSITORY}:${tag}" >&2
+    fi
+}
+
+# streams an image to the GitHub Container Registry
+function github_stream_image () {
+    local path="$1"
+    local tag="$2"
+
+    if [[ -n $GITHUB_TOKEN && -n $GITHUB_ACTOR && -n $GITHUB_REPOSITORY ]]; then
+        echo "streaming to ghcr.io/${GITHUB_REPOSITORY}:${tag}" >&2
+        "${path}" |
+            gzip --fast |
+            skopeo --insecure-policy copy \
+                --dest-creds "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
+                "docker-archive:/dev/stdin" \
+                "docker://ghcr.io/${GITHUB_REPOSITORY}:${tag}" >&2
     fi
 }

@@ -51,8 +51,6 @@ function nix_pkg_exe () {
 
 function nix_build () {
     local package="$1"
-
-    print "building"
     nix "${NIX_ARGS[@]}" build ".#${package}" --no-link >&2
 }
 
@@ -62,7 +60,6 @@ function nix_bundle () {
     local tmpdir
     tmpdir=$(mktemp -u)
     
-    print "bundling"
     nix "${NIX_ARGS[@]}" bundle --bundler github:DavHau/nix-portable ".#${package}" -o "${tmpdir}" >&2
 
     echo "${tmpdir}"
