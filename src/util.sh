@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+GLOBAL_PACKAGE="default"
+
+function print () {
+    local message="$1"
+
+    printf '%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+}
+
 function archive () {
     local source="$1"
     local name="$2"

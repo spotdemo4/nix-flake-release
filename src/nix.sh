@@ -60,6 +60,7 @@ function nix_bundle () {
     local tmpdir
     tmpdir=$(mktemp -u)
     
-    nix "${NIX_ARGS[@]}" bundle --bundler github:DavHau/nix-portable ".#${package}" -o "${tmpdir}" > /dev/null
+    nix "${NIX_ARGS[@]}" bundle --bundler github:DavHau/nix-portable ".#${package}" -o "${tmpdir}" &> /dev/null
+
     echo "${tmpdir}"
 }
