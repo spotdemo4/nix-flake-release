@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 
-if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
-    gh auth login --with-token <<< "$GITHUB_TOKEN" &> /dev/null
-fi
-
 function github_release_create () {
     local version="$1"
 
     if [[ -n $GITHUB_TOKEN && -n $GITHUB_REPOSITORY ]]; then
-        gh release create --repo "$GITHUB_REPOSITORY" "v$version" --generate-notes &> /dev/null || true
+        gh release create --repo "$GITHUB_REPOSITORY" "v$version" --generate-notes || true
     fi
 }
 
