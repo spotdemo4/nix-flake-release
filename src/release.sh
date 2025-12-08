@@ -86,5 +86,9 @@ for PACKAGE in "${PACKAGES[@]}"; do
         echo "unknown type" >&2
     fi
 
-    echo "" >&2
+    if [[ "${CI}" == "true" ]]; then
+        printf "::endgroup::\n" >&2
+    else
+        echo "" >&2
+    fi
 done
