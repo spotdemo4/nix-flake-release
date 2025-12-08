@@ -8,6 +8,7 @@ DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
 source "$DIR/github.sh"
+source "$DIR/image.sh"
 source "$DIR/nix.sh"
 source "$DIR/platform.sh"
 source "$DIR/util.sh"
@@ -57,14 +58,14 @@ for PACKAGE in "${PACKAGES[@]}"; do
         echo "detected as image '$IMAGE_NAME:$IMAGE_TAG'" >&2
 
         print "uploading"
-        github_upload_image "$STORE_PATH" "$IMAGE_TAG"
+        upload_image "$STORE_PATH" "$IMAGE_TAG"
 
     # `dockerTools.streamLayeredImage`
     elif [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -f "$STORE_PATH" && -x "$STORE_PATH" ]]; then
         echo "detected as image '$IMAGE_NAME:$IMAGE_TAG'" >&2
 
-        print "uploading"
-        github_stream_image "$STORE_PATH" "$IMAGE_TAG"
+        print "streaming"
+        stream_image "$STORE_PATH" "$IMAGE_TAG"
 
     # `mkDerivation`` executable
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then

@@ -8,8 +8,26 @@ inputs:
     required: false
     default: ${{ github.token }}
 
+  registry:
+    description: container registry url
+    required: false
+    default: ghcr.io
+
+  registry_username:
+    description: container registry username
+    required: false
+    default: ${{ github.actor }}
+
+  registry_password:
+    description: container registry password
+    required: false
+    default: ${{ github.token }}
+
 runs:
   using: docker
   image: docker://ghcr.io/spotdemo4/nix-flake-release:0.4.0
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
+    REGISTRY: ${{ inputs.registry }}
+    REGISTRY_USERNAME: ${{ inputs.registry_username }}
+    REGISTRY_PASSWORD: ${{ inputs.registry_password }}
