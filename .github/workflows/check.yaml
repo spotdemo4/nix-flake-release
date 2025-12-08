@@ -11,8 +11,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   check:
