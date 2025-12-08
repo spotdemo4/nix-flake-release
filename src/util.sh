@@ -34,12 +34,12 @@ function archive () {
     if [[ "$platform" == "windows"* ]]; then
         print "archiving as zip"
 
-        zip -qr "${tmpdir}/${name}.zip" "${source}" &> /dev/null
+        zip -qr "${tmpdir}/${name}.zip" "${source}"
         echo "${tmpdir}/${name}.zip"
     else
         print "archiving as tar.xz"
 
-        tar -cJhf "${tmpdir}/${name}.tar.xz" "${source}" &> /dev/null
+        tar -cJhf "${tmpdir}/${name}.tar.xz" "${source}"
         echo "${tmpdir}/${name}.tar.xz"
     fi
 }
