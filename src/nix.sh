@@ -53,7 +53,7 @@ function nix_build () {
     local package="$1"
 
     print "building"
-    nix "${NIX_ARGS[@]}" build ".#${package}" --no-link --quiet
+    nix "${NIX_ARGS[@]}" build ".#${package}" --no-link >&2
 }
 
 function nix_bundle () {

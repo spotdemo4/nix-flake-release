@@ -26,7 +26,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
     print "evaluating" 
     STORE_PATH=$(nix_pkg_path "$PACKAGE")
     if [[ ${STORE_PATHS[*]} =~ $STORE_PATH ]]; then
-        print "$PACKAGE: already built, skipping"
+        echo "$PACKAGE: already built, skipping" >&2
         continue
     else
         STORE_PATHS+=("$STORE_PATH")
@@ -45,30 +45,26 @@ for PACKAGE in "${PACKAGES[@]}"; do
     IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
 
     if [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -f "$STORE_PATH" ]]; then
-        print "detected as image '$IMAGE_NAME:$IMAGE_TAG'"
+        echo "detected as image '$IMAGE_NAME:$IMAGE_TAG'" >&2
 
         github_upload_image "$STORE_PATH" "$IMAGE_TAG"
 
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then
-        print "detected as executable '$(basename "$EXE")' for '$PLATFORM'"
+        echo "detected as executable '$(basename "$EXE")' for '$PLATFORM'" >&2
 
         ARCHIVE=$(archive "$EXE" "$NAME-$PLATFORM" "$PLATFORM")
-        print "$(file_info "$ARCHIVE")"
 
         github_upload_file "$ARCHIVE" "$VERSION"
 
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
-        print "detected as derivation '${NAME}'"
+        echo "detected as derivation '${NAME}'" >&2
 
         BUNDLE=$(nix_bundle "$PACKAGE")
         ARCHIVE=$(archive "$BUNDLE" "$NAME" "$(host_platform)")
-        print "$(file_info "$ARCHIVE")"
 
         github_upload_file "$ARCHIVE" "$VERSION"
 
     else
-        print "unknown type"
+        echo "unknown type" >&2
     fi
-
-    print "done"
 done

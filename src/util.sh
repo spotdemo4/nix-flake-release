@@ -47,4 +47,6 @@ function archive () {
         tar -cJhf "${tmpdir}/${name}.tar.xz" "${source}" >&2
         echo "${tmpdir}/${name}.tar.xz"
     fi
+
+    file_info "$ARCHIVE" >&2
 }

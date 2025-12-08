@@ -145,6 +145,7 @@
               jq
               mktemp
               skopeo
+              xz
               zip
             ];
 
