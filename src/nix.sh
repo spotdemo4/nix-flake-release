@@ -23,10 +23,16 @@ function nix_packages () {
     local system="$1"
 
     local packages
-    packages=$(nix "${NIX_ARGS[@]}" flake show --json 2> /dev/null | jq -r --arg system "$system" '.packages[$system] | keys[]')
-    echo "packages: ${packages}" >&2
+    packages=$(nix "${NIX_ARGS[@]}" flake show --json 2> /dev/null)
 
-    echo "${packages}"
+    local packages_list
+    packages_list=$(echo "${packages}" | jq -r --arg system "$system" '.packages[$system] | keys | join(", ")')
+    echo "packages: ${packages_list}" >&2
+
+    local packages_json
+    packages_json=$(echo "${packages}" | jq -r --arg system "$system" '.packages[$system] | keys[]')
+
+    echo "${packages_json}"
 }
 
 function nix_pkg_path () {
@@ -44,7 +50,10 @@ function nix_pkg_name () {
 
     local name
     name=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}.name" 2> /dev/null || echo "")
-    echo "name: ${name-"not found"}" >&2
+
+    if [[ -n "$name" ]]; then
+        echo "name: ${name}" >&2
+    fi
 
     echo "${name}"
 }
@@ -54,7 +63,10 @@ function nix_pkg_version () {
 
     local version
     version=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}.version" 2> /dev/null || echo "")
-    echo "version: ${version-"not found"}" >&2
+
+    if [[ -n "$version" ]]; then
+        echo "version: ${version}" >&2
+    fi
 
     echo "${version}"
 }
@@ -64,7 +76,10 @@ function nix_pkg_image_name () {
 
     local image_name
     image_name=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}.imageName" 2> /dev/null || echo "")
-    echo "image name: ${image_name-"not found"}" >&2
+
+    if [[ -n "$image_name" ]]; then
+        echo "image name: ${image_name}" >&2
+    fi
 
     echo "${image_name}"
 }
@@ -74,7 +89,10 @@ function nix_pkg_image_tag () {
 
     local image_tag
     image_tag=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}.imageTag" 2> /dev/null || echo "")
-    echo "image tag: ${image_tag-"not found"}" >&2
+
+    if [[ -n "$image_tag" ]]; then
+        echo "image tag: ${image_tag}" >&2
+    fi
 
     echo "${image_tag}"
 }
@@ -84,7 +102,10 @@ function nix_pkg_exe () {
 
     local exe
     exe=$(nix "${NIX_ARGS[@]}" eval --raw --impure ".#${package}" --apply "(import <nixpkgs> {}).lib.meta.getExe" 2> /dev/null || echo "")
-    echo "exe: ${exe-"not found"}" >&2
+
+    if [[ -n "$exe" ]]; then
+        echo "exe: ${exe}" >&2
+    fi
 
     echo "${exe}"
 }

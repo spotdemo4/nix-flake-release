@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 
-GLOBAL_PACKAGE="default"
-
 function print () {
     local message="$1"
 
     if [[ "${CI}" == "true" ]]; then
         printf "::endgroup::\n" >&2
-        printf '::group::%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+        printf '::group::%s\n' "${message}" >&2
     else
-        printf '%s: %s\n' "${GLOBAL_PACKAGE}" "${message}" >&2
+        printf '%s\n' "${message}" >&2
     fi
 }
 

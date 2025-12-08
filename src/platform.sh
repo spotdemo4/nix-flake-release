@@ -13,8 +13,10 @@ detect_platform () {
         os="darwin"
     elif [[ "$file_output" =~ "PE32" ]] || [[ "$file_output" =~ "MS Windows" ]]; then
         os="windows"
-    else
-        os="unknown"
+    fi
+
+    if [[ -n "$os" ]]; then
+        echo "os: ${os}" >&2
     fi
     
     # detect architecture
@@ -28,13 +30,13 @@ detect_platform () {
         arch="arm"
     elif [[ "$file_output" =~ "MIPS" ]]; then
         arch="mips"
-    else
-        arch="unknown"
     fi
 
-    echo "platform: ${os}-${arch}" >&2
+    if [[ -n "$arch" ]]; then
+        echo "architecture: ${arch}" >&2
+    fi
     
-    echo "${os}-${arch}"
+    echo "${os:-"unknown"}-${arch:-"unknown"}"
 }
 
 host_platform () {

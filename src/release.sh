@@ -19,11 +19,11 @@ if [[ ${#PACKAGES[@]} -eq 0 ]]; then
     exit 1
 fi
 
+echo "" >&2
+
 STORE_PATHS=()
 for PACKAGE in "${PACKAGES[@]}"; do
-    GLOBAL_PACKAGE="$PACKAGE"
-
-    print "evaluating" 
+    print "evaluating '$PACKAGE'"
     STORE_PATH=$(nix_pkg_path "$PACKAGE")
     if [[ ${STORE_PATHS[*]} =~ $STORE_PATH ]]; then
         echo "$PACKAGE: already built, skipping" >&2
@@ -85,4 +85,6 @@ for PACKAGE in "${PACKAGES[@]}"; do
     else
         echo "unknown type" >&2
     fi
+
+    echo "" >&2
 done
