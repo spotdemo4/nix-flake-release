@@ -17,9 +17,13 @@ function archive () {
     tmpdir=$(mktemp -d)
 
     if [[ "$platform" == "windows"* ]]; then
+        print "archiving as zip"
+
         zip -qr "${tmpdir}/${name}.zip" "${source}" &> /dev/null
         echo "${tmpdir}/${name}.zip"
     else
+        print "archiving as tar.xz"
+
         tar -cJhf "${tmpdir}/${name}.tar.xz" "${source}" &> /dev/null
         echo "${tmpdir}/${name}.tar.xz"
     fi

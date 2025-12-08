@@ -22,8 +22,8 @@ fi
 STORE_PATHS=()
 for PACKAGE in "${PACKAGES[@]}"; do
     GLOBAL_PACKAGE="$PACKAGE"
-    print "evaluating" 
 
+    print "evaluating" 
     STORE_PATH=$(nix_pkg_path "$PACKAGE")
     if [[ ${STORE_PATHS[*]} =~ $STORE_PATH ]]; then
         print "$PACKAGE: already built, skipping"
@@ -32,17 +32,14 @@ for PACKAGE in "${PACKAGES[@]}"; do
         STORE_PATHS+=("$STORE_PATH")
     fi
 
-    print "building"
     nix_build "$PACKAGE"
 
     print "probing"
-
     # `mkDerivation`` attributes
     NAME=$(nix_pkg_name "$PACKAGE")
     VERSION=$(nix_pkg_version "$PACKAGE")
     EXE=$(nix_pkg_exe "$PACKAGE")
     PLATFORM=$(detect_platform "$EXE")
-
     # `dockerTools.buildLayeredImage` attributes
     IMAGE_NAME=$(nix_pkg_image_name "$PACKAGE")
     IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
@@ -50,28 +47,21 @@ for PACKAGE in "${PACKAGES[@]}"; do
     if [[ -n $IMAGE_NAME && -n $IMAGE_TAG && -f "$STORE_PATH" ]]; then
         print "detected as image '$IMAGE_NAME:$IMAGE_TAG'"
 
-        print "uploading"
         github_upload_image "$STORE_PATH" "$IMAGE_TAG"
 
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" && -f "$EXE" && "$PLATFORM" != "unknown-unknown" ]]; then
         print "detected as executable '$(basename "$EXE")' for '$PLATFORM'"
 
-        print "archiving"
         ARCHIVE=$(archive "$EXE" "$NAME-$PLATFORM" "$PLATFORM")
 
-        print "uploading"
         github_upload_file "$ARCHIVE" "$VERSION"
 
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
         print "detected as derivation '${NAME}'"
 
-        print "bundling"
         BUNDLE=$(nix_bundle "$PACKAGE")
-
-        print "archiving"
         ARCHIVE=$(archive "$BUNDLE" "$NAME" "$(host_platform)")
 
-        print "uploading"
         github_upload_file "$ARCHIVE" "$VERSION"
 
     else
