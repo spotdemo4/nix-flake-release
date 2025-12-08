@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# export PATH="${PATH}" placeholder, will be replaced by nix
+# export PATH="${PATH}" placeholder, will be replaced in release
 
 set -e
 

@@ -2,7 +2,9 @@
 
 detect_platform () {
     local filepath="$1"
-    local file_output=$(file -b "$filepath")
+
+    local file_output
+    file_output=$(file -b "$filepath")
     
     # detect os
     if [[ "$file_output" =~ "ELF" ]]; then

@@ -90,7 +90,7 @@
               shellcheck
             ];
             script = ''
-              shellcheck -x release.sh
+              shellcheck src/*.sh
             '';
           };
 
@@ -149,24 +149,29 @@
             ];
 
             unpackPhase = ''
-              cp -R "$src/src/." .
+              cp -a "$src/." .
             '';
 
             dontBuild = true;
 
             configurePhase = ''
-              sed -i '1c\#!${pkgs.runtimeShell}' release.sh
-              sed -i '2c\export PATH="${pkgs.lib.makeBinPath finalAttrs.runtimeInputs}:$PATH"' release.sh
+              chmod +w src
+              sed -i '1c\#!${pkgs.runtimeShell}' src/release.sh
+              sed -i '2c\export PATH="${pkgs.lib.makeBinPath finalAttrs.runtimeInputs}:$PATH"' src/release.sh
             '';
 
+            doCheck = true;
             checkPhase = ''
-              shellcheck -x release.sh
+              shellcheck src/*.sh
             '';
 
             installPhase = ''
               mkdir -p $out/bin
-              cp -R *.sh $out/bin
+              cp -R src/*.sh $out/bin
+              ls -lah $out/bin
             '';
+
+            dontFixup = true;
 
             meta = {
               description = "nix flake releaser";
