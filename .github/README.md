@@ -68,6 +68,6 @@ docker run -it --rm \
 
 requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo), [gh](https://cli.github.com/) (github)
 
-#### [bumper-0.7.1.tar.xz](https://github.com/spotdemo4/nix-flake-release/releases/download/v0.4.5/nix-flake-release-0.4.5.tar.xz) - bundle
+#### [nix-flake-release-0.4.5.tar.xz](https://github.com/spotdemo4/nix-flake-release/releases/download/v0.4.5/nix-flake-release-0.4.5.tar.xz) - bundle
 
 contains all dependencies, only use if necessary
