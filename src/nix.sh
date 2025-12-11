@@ -8,7 +8,7 @@ if [[ "${CI}" == "true" ]]; then
     chown -R "${USER}:${USER}" "${HOME}"
 fi
 
-NIX_ARGS=("--extra-experimental-features" "nix-command flakes" "--accept-flake-config" "--no-warn-dirty")
+NIX_ARGS=("--extra-experimental-features" "nix-command flakes" "--accept-flake-config" "--no-warn-dirty" "--access-tokens" "github.com=${GITHUB_TOKEN:-}")
 
 function nix_system () {
     local system
