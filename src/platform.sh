@@ -7,6 +7,7 @@ detect_platform () {
     file_output=$(file -b "$filepath")
     
     # detect os
+    local os
     if [[ "$file_output" =~ "ELF" ]]; then
         os="linux"
     elif [[ "$file_output" =~ "Mach-O" ]]; then
@@ -15,11 +16,12 @@ detect_platform () {
         os="windows"
     fi
 
-    if [[ -n "$os" ]]; then
+    if [[ -n "${os-}" ]]; then
         echo "os: ${os}" >&2
     fi
     
     # detect architecture
+    local arch
     if [[ "$file_output" =~ "x86-64" ]] || [[ "$file_output" =~ "x86_64" ]]; then
         arch="amd64"
     elif [[ "$file_output" =~ "Intel 80386" ]] || [[ "$file_output" =~ "i386" ]]; then
@@ -32,7 +34,7 @@ detect_platform () {
         arch="mips"
     fi
 
-    if [[ -n "$arch" ]]; then
+    if [[ -n "${arch-}" ]]; then
         echo "architecture: ${arch}" >&2
     fi
     
