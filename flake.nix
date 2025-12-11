@@ -34,6 +34,7 @@
           overlays = [
             trev.overlays.packages
             trev.overlays.libs
+            trev.overlays.images
           ];
         };
       in
@@ -46,7 +47,6 @@
               gh
               jq
               mktemp
-              shellcheck
               skopeo
               zip
 
@@ -54,16 +54,11 @@
               bumper
 
               # lint
+              shellcheck
               nixfmt
               prettier
             ];
             shellHook = pkgs.shellhook.ref;
-          };
-
-          bump = pkgs.mkShell {
-            packages = with pkgs; [
-              nix-update
-            ];
           };
 
           update = pkgs.mkShell {
@@ -146,6 +141,7 @@
             };
 
             nativeBuildInputs = with pkgs; [
+              makeWrapper
               shellcheck
             ];
 
@@ -177,39 +173,38 @@
             '';
 
             installPhase = ''
+              mkdir -p $out/lib/nix-flake-release
+              cp -R src/*.sh $out/lib/nix-flake-release
+
               mkdir -p $out/bin
-              cp -R src/*.sh $out/bin
+              makeWrapper "$out/lib/nix-flake-release/release.sh" "$out/bin/release"
             '';
 
             dontFixup = true;
 
             meta = {
               description = "nix flake releaser";
-              mainProgram = "release.sh";
+              mainProgram = "release";
               homepage = "https://github.com/spotdemo4/nix-flake-release";
+              changelog = "https://github.com/spotdemo4/nix-flake-release/releases/tag/v${finalAttrs.version}";
               platforms = pkgs.lib.platforms.all;
             };
           });
 
           image = pkgs.dockerTools.buildLayeredImage {
-            fromImage = pkgs.dockerTools.pullImage {
-              imageName = "nixos/nix";
-              imageDigest = "sha256:0d9c872db1ca2f3eaa4a095baa57ed9b72c09d53a0905a4428813f61f0ea98db";
-              hash = "sha256-H7uT+XPp5xadUzP2GEq031yZSIfzpZ1Ps6KVeBTIhOg=";
-            };
-
             name = packages.default.pname;
             tag = packages.default.version;
-            created = "now";
-            meta = packages.default.meta;
+
+            fromImage = pkgs.images.nix;
             contents = with pkgs; [
               packages.default
               dockerTools.caCertificates
             ];
 
-            config.Cmd = [
-              "${pkgs.lib.meta.getExe packages.default}"
-            ];
+            created = "now";
+            meta = packages.default.meta;
+
+            config.Cmd = [ "${pkgs.lib.meta.getExe packages.default}" ];
           };
         };
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # export PATH="${PATH}" placeholder, will be replaced in release
 
-set -e
+set -o errexit
+set -o nounset
+set -o pipefail
 
 # make source imports work
 DIR="${BASH_SOURCE%/*}"

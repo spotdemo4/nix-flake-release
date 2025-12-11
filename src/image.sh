@@ -5,7 +5,7 @@ function upload_image () {
     local path="$1"
     local tag="$2"
 
-    if [[ -n $REGISTRY && -n $REGISTRY_USERNAME && -n $REGISTRY_PASSWORD ]]; then
+    if [[ -n ${REGISTRY-} && -n ${REGISTRY_USERNAME-} && -n ${REGISTRY_PASSWORD-} ]]; then
         echo "uploading to ${REGISTRY}/${GITHUB_REPOSITORY}:${tag}" >&2
         skopeo --insecure-policy copy \
             --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
@@ -19,7 +19,7 @@ function stream_image () {
     local path="$1"
     local tag="$2"
 
-    if [[ -n $REGISTRY && -n $REGISTRY_USERNAME && -n $REGISTRY_PASSWORD ]]; then
+    if [[ -n ${REGISTRY-} && -n ${REGISTRY_USERNAME-} && -n ${REGISTRY_PASSWORD-} ]]; then
         echo "streaming to ${REGISTRY}/${GITHUB_REPOSITORY}:${tag}" >&2
         "${path}" |
             gzip --fast |

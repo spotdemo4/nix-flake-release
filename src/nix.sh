@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "${CI}" == "true" ]]; then
+if [[ "${CI-}" == "true" ]]; then
     # https://github.com/NixOS/nix/issues/10202
     git config --global --add safe.directory "$(pwd)"
 
