@@ -150,6 +150,7 @@
               file
               findutils
               gh
+              gnused
               jq
               mktemp
               ncurses
