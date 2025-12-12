@@ -46,9 +46,13 @@
               file
               findutils
               gh
+              gnused
               jq
               mktemp
+              ncurses
+              nix
               skopeo
+              xz
               zip
 
               # util
