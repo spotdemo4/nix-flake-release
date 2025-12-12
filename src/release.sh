@@ -82,10 +82,15 @@ for PACKAGE in "${PACKAGES[@]}"; do
 
     # `mkDerivation`` non-executable
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
-        echo "detected as derivation '${NAME}'" >&2
+        echo "detected as generic derivation '${NAME}'" >&2
 
-        print "bundling"
-        BUNDLE=$(nix_bundle "$PACKAGE")
+        if [[ "${BUNDLE-}" == "false" ]]; then
+            echo "skipping bundling as BUNDLE is set to false" >&2
+            BUNDLE="$STORE_PATH"
+        else
+            print "bundling"
+            BUNDLE=$(nix_bundle "$PACKAGE")
+        fi
 
         print "archiving"
         ARCHIVE=$(archive "$BUNDLE" "$NAME" "$(host_platform)")
