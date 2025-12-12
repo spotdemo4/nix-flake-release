@@ -9,12 +9,12 @@ function archive() {
     tmpdir=$(mktemp -d)
 
     local filecount
-    filecount=$(find "${source}" -type f | wc -l | tr -d ' ')
+    filecount=$(find -L "${source}" -type f | wc -l | tr -d ' ')
     if [[ "${filecount}" -eq 0 ]]; then
         warn "no files found to archive"
         return 1
     elif [[ "${filecount}" -eq 1 ]]; then
-        source=$(dirname "$(find "${source}" -type f)")
+        source=$(dirname "$(find -L "${source}" -type f)")
     fi
 
     info "archiving ${source} for ${platform}"

@@ -44,6 +44,7 @@
             packages = with pkgs; [
               # bash
               file
+              findutils
               gh
               jq
               mktemp
@@ -147,6 +148,7 @@
 
             runtimeInputs = with pkgs; [
               file
+              findutils
               gh
               jq
               mktemp
