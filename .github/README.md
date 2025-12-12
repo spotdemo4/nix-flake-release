@@ -75,6 +75,17 @@ docker run -it --rm \
 
 requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo), [gh](https://cli.github.com/) (github)
 
+```elm
+git clone https://github.com/spotdemo4/nix-flake-release &&
+./nix-flake-release/src/release.sh
+```
+
 #### [nix-flake-release-0.5.1.tar.xz](https://github.com/spotdemo4/nix-flake-release/releases/download/v0.5.1/nix-flake-release-0.5.1.tar.xz) - bundle
 
 contains all dependencies, only use if necessary
+
+```elm
+wget https://github.com/spotdemo4/nix-flake-release/releases/download/v0.5.1/nix-flake-release-0.5.1.tar.xz &&
+tar xf nix-flake-release-0.5.1.tar.xz &&
+./release
+```
