@@ -3,7 +3,7 @@
 function nix_system () {
     local system
 
-    system=$(nix "${NIX_ARGS[@]}" eval --impure --raw --expr "builtins.currentSystem")
+    system=$(nix "${NIX_ARGS[@]}" eval --impure --raw --expr "builtins.currentSystem" 2> /dev/null)
     info "$(dim "system: ${system}")"
 
     echo "${system}"
