@@ -1,4 +1,4 @@
-# nix flake release
+# <img src="https://brand.nixos.org/internals/nixos-logomark-default-gradient-none.svg" alt="NixOS" width="25"> nix flake release
 
 ![check](https://github.com/spotdemo4/nix-flake-release/actions/workflows/check.yaml/badge.svg?branch=main)
 ![vulnerable](https://github.com/spotdemo4/nix-flake-release/actions/workflows/vulnerable.yaml/badge.svg?branch=main)
@@ -37,7 +37,7 @@ nix run github:spotdemo4/nix-flake-release
 
 ```nix
 inputs = {
-    bumper = {
+    nix-flake-release = {
         url = "github:spotdemo4/nix-flake-release";
         inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -73,7 +73,7 @@ docker run -it --rm \
 
 #### [release.sh](/src/release.sh) - bash script
 
-requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo), [gh](https://cli.github.com/) (github)
+requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo/), [gh](https://cli.github.com/) (github)
 
 ```elm
 git clone https://github.com/spotdemo4/nix-flake-release &&
@@ -85,7 +85,7 @@ git clone https://github.com/spotdemo4/nix-flake-release &&
 contains all dependencies, only use if necessary
 
 ```elm
-wget https://github.com/spotdemo4/nix-flake-release/releases/download/v0.6.0/nix-flake-release-0.6.0.tar.xz &&
+wget https://github.com/spotdemo4/nix-flake-release/releases/latest/download/nix-flake-release-0.6.0.tar.xz &&
 tar xf nix-flake-release-0.6.0.tar.xz &&
 ./release
 ```
