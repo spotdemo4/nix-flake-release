@@ -29,7 +29,7 @@ function nix_pkg_path () {
     local package="$1"
 
     local pkg_path
-    pkg_path=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}")
+    pkg_path=$(nix "${NIX_ARGS[@]}" eval --raw ".#${package}" 2> /dev/null)
     info "$(dim "path: ${pkg_path}")"
 
     echo "${pkg_path}"
