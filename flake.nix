@@ -76,6 +76,7 @@
             packages = with pkgs; [
               # nix
               flake-checker
+              nix-scan
 
               # actions
               octoscan
@@ -206,8 +207,8 @@
 
             fromImage = pkgs.image.nix;
             contents = with pkgs; [
-              packages.default
               dockerTools.caCertificates
+              packages.default
             ];
 
             created = "now";
