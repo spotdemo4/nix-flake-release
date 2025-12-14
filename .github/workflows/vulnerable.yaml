@@ -21,6 +21,8 @@ jobs:
         run: flake-checker -f
 
       - name: Run nix-scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: nix-scan
 
   actions:
