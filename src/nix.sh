@@ -107,6 +107,12 @@ function nix_build () {
     run nix "${NIX_ARGS[@]}" build ".#${package}" --no-link
     code=$?
 
+    if [[ ${code} -ne 0 ]]; then
+        warn "build failed, retrying"
+        run nix "${NIX_ARGS[@]}" build ".#${package}" --no-link
+        code=$?
+    fi
+
     return ${code}
 }
 
