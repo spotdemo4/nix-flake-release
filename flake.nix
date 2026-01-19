@@ -37,33 +37,37 @@
             trev.overlays.images
           ];
         };
+        deps = with pkgs; [
+          file
+          findutils
+          gh
+          gnused
+          jq
+          mktemp
+          ncurses
+          nix
+          skopeo
+          tea
+          xz
+          zip
+        ];
+        fs = pkgs.lib.fileset;
       in
       rec {
         devShells = {
           default = pkgs.mkShell {
-            packages = with pkgs; [
-              # bash
-              file
-              findutils
-              gh
-              gnused
-              jq
-              mktemp
-              ncurses
-              nix
-              skopeo
-              tea
-              xz
-              zip
+            packages =
+              with pkgs;
+              [
+                # util
+                bumper
 
-              # util
-              bumper
-
-              # lint
-              shellcheck
-              nixfmt
-              prettier
-            ];
+                # lint
+                shellcheck
+                nixfmt
+                prettier
+              ]
+              ++ deps;
             shellHook = pkgs.shellhook.ref;
           };
 
@@ -77,7 +81,6 @@
             packages = with pkgs; [
               # nix
               flake-checker
-              nix-scan
 
               # actions
               octoscan
@@ -86,28 +89,55 @@
         };
 
         checks = pkgs.lib.mkChecks {
-          bash = {
-            src = packages.default;
+          shellcheck = {
+            src = fs.toSource {
+              root = ./.;
+              fileset = fs.fileFilter (file: file.hasExt "sh") ./.;
+            };
             deps = with pkgs; [
               shellcheck
             ];
             script = ''
-              shellcheck src/*.sh
+              shellcheck **/*.sh
             '';
           };
 
-          action = {
-            src = ./.;
+          actions = {
+            src = fs.toSource {
+              root = ./.;
+              fileset = fs.unions [
+                ./action.yaml
+                ./.github/workflows
+              ];
+            };
             deps = with pkgs; [
               action-validator
+              octoscan
             ];
             script = ''
-              action-validator action.yaml
+              action-validator **/*.yaml
+              octoscan scan .
+            '';
+          };
+
+          renovate = {
+            src = fs.toSource {
+              root = ./.github;
+              fileset = ./.github/renovate.json;
+            };
+            deps = with pkgs; [
+              renovate
+            ];
+            script = ''
+              renovate-config-validator renovate.json
             '';
           };
 
           nix = {
-            src = ./.;
+            src = fs.toSource {
+              root = ./.;
+              fileset = fs.fileFilter (file: file.hasExt "nix") ./.;
+            };
             deps = with pkgs; [
               nixfmt-tree
             ];
@@ -116,25 +146,18 @@
             '';
           };
 
-          actions = {
-            src = ./.;
+          prettier = {
+            src = fs.toSource {
+              root = ./.;
+              fileset = fs.fileFilter (file: file.hasExt "yaml" || file.hasExt "json" || file.hasExt "md") ./.;
+            };
             deps = with pkgs; [
               prettier
-              action-validator
-              octoscan
-              renovate
             ];
             script = ''
-              prettier --check "**/*.json" "**/*.yaml"
-              action-validator .github/**/*.yaml
-              octoscan scan .github
-              renovate-config-validator .github/renovate.json
+              prettier --check .
             '';
           };
-        };
-
-        apps = pkgs.lib.mkApps {
-          dev.script = "./src/release.sh";
         };
 
         packages = {
@@ -152,20 +175,7 @@
               shellcheck
             ];
 
-            runtimeInputs = with pkgs; [
-              file
-              findutils
-              gh
-              gnused
-              jq
-              mktemp
-              ncurses
-              nix
-              skopeo
-              tea
-              xz
-              zip
-            ];
+            runtimeInputs = deps;
 
             unpackPhase = ''
               cp -a "$src/." .
