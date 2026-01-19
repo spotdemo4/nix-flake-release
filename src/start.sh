@@ -59,8 +59,8 @@ for PACKAGE in "${PACKAGES[@]}"; do
         STORE_PATHS+=("$STORE_PATH")
     fi
 
-    if ! nix_build "$PACKAGE"; then
-        warn "build failed"
+    if ! CODE=$(nix_build "$PACKAGE"); then
+        warn "build failed: $CODE"
         continue
     fi
 

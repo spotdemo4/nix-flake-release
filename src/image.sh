@@ -10,7 +10,7 @@ function upload_image () {
         run skopeo --insecure-policy copy \
             --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
             "docker-archive:${path}" \
-            "docker://${REGISTRY}/${GITHUB_REPOSITORY}:${tag}"
+            "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}"
     fi
 }
 
@@ -18,7 +18,10 @@ function stream_image_helper() {
     local path="$1"
     local tag="$2"
 
-    "${path}" | gzip --fast | skopeo --insecure-policy copy --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" docker-archive:/dev/stdin "docker://${REGISTRY}/${GITHUB_REPOSITORY}:${tag}"
+    "${path}" | gzip --fast | skopeo --insecure-policy copy \
+        --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
+        docker-archive:/dev/stdin \
+        "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}"
 }
 
 # streams an image to a container registry
