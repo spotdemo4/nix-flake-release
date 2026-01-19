@@ -112,19 +112,14 @@ for PACKAGE in "${PACKAGES[@]}"; do
 
         release_asset "$VERSION" "$ARCHIVE"
 
-    # `mkDerivation`` non-executable
-    elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
+    # `mkDerivation`` non-executable bundle
+    elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" && "${BUNDLE-}" == "true" ]]; then
 
         info "detected as generic derivation $(bold "${NAME}")"
 
-        if [[ "${BUNDLE-}" == "false" ]]; then
-            info "skipping bundling as BUNDLE is set to false"
-            BUNDLE="$STORE_PATH"
-        else
-            if ! BUNDLE=$(nix_bundle "$PACKAGE"); then
-                warn "bundling failed"
-                continue
-            fi
+        if ! BUNDLE=$(nix_bundle "$PACKAGE"); then
+            warn "bundling failed"
+            continue
         fi
 
         if ! ARCHIVE=$(archive "$BUNDLE" "$NAME" "$(host_platform)"); then
