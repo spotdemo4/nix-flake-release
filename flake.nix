@@ -52,6 +52,7 @@
               ncurses
               nix
               skopeo
+              tea
               xz
               zip
 
@@ -161,6 +162,7 @@
               ncurses
               nix
               skopeo
+              tea
               xz
               zip
             ];

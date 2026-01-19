@@ -21,4 +21,21 @@ function git_check_safe() {
     git config --global --add safe.directory "${dir}"
 }
 
+function git_changelog() {
+    local last_tag
+    local current_tag
+
+    last_tag=$(git tag -l --sort=-creatordate | head -n 2 | tail -1)
+    if [[ -z "${last_tag}" ]]; then
+        last_tag=$(git rev-list --max-parents=0 HEAD)
+    fi
+
+    current_tag=$(git tag -l --sort=-creatordate | head -n 1)
+    if [[ -z "${current_tag}" ]]; then
+        current_tag="HEAD"
+    fi
+
+    git log --pretty=format:"* %s (%H)" "${last_tag}..${current_tag}"
+}
+
 git_check_safe "$(pwd)"

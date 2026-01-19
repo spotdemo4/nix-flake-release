@@ -13,6 +13,7 @@ source "$DIR/util.sh"
 
 source "$DIR/git.sh"
 source "$DIR/github.sh"
+source "$DIR/gitea.sh"
 source "$DIR/image.sh"
 source "$DIR/nix.sh"
 source "$DIR/platform.sh"
@@ -26,6 +27,34 @@ if [[ -n "${ENV_ARGS-}" ]]; then
     readarray -t ENV_ARGS < <(array "${ENV_ARGS-}")
     ARGS+=( "${ENV_ARGS[@]}" )
 fi
+
+# detect remote git platform
+if [[ -n "${GITEA_ACTIONS-}" ]]; then
+    REMOTE="gitea"
+    gitea_login
+elif [[ -n "${FORGEJO_ACTIONS-}" ]]; then
+    REMOTE="forgejo"
+elif [[ -n "${REMOTE-}" ]]; then
+    REMOTE="github"
+fi
+
+# get git changelog
+CHANGELOG=$(git_changelog)
+
+function release () {
+    local file="$1"
+    local version="$2"
+
+    if [[ "${REMOTE}" == "gitea" ]]; then
+        if ! gitea_release "$file" "$version" "${CHANGELOG}"; then
+            warn "uploading failed"
+        fi
+    elif [[ "${REMOTE}" == "github" ]]; then
+        if ! github_release "$file" "$version" "${CHANGELOG}"; then
+            warn "uploading failed"
+        fi
+    fi
+}
 
 # get nix packages
 NIX_SYSTEM=$(nix_system)
@@ -63,6 +92,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
     VERSION=$(nix_pkg_version "$PACKAGE")
     EXE=$(nix_pkg_exe "$PACKAGE")
     PLATFORM=$(detect_platform "$EXE")
+
     # `dockerTools` attributes
     IMAGE_NAME=$(nix_pkg_image_name "$PACKAGE")
     IMAGE_TAG=$(nix_pkg_image_tag "$PACKAGE")
@@ -97,10 +127,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
             continue
         fi
 
-        if ! github_upload_file "$ARCHIVE" "$VERSION"; then
-            warn "uploading failed"
-            continue
-        fi
+        release "$ARCHIVE" "$VERSION"
 
     # `mkDerivation`` non-executable
     elif [[ -n $NAME && -n $VERSION && -d "$STORE_PATH" ]]; then
@@ -122,10 +149,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
             continue
         fi
 
-        if ! github_upload_file "$ARCHIVE" "$VERSION"; then
-            warn "uploading failed"
-            continue
-        fi
+        release "$ARCHIVE" "$VERSION"
 
     else
         warn "unknown type"
