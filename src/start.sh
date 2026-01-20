@@ -75,9 +75,13 @@ for PACKAGE in "${PACKAGES[@]}"; do
 
     # create release
     if [[ -n $VERSION ]]; then
-        if ! release "${VERSION}" "$(git_changelog "${VERSION}")"; then
+        changelog=$(git_changelog "${VERSION}")
+
+        if ! release "${VERSION}" "${changelog}"; then
             warn "could not create release v${VERSION}"
         fi
+
+        rm -f "${changelog}"
     fi
 
     # `dockerTools.buildLayeredImage`

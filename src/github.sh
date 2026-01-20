@@ -5,11 +5,11 @@ function github_release () {
     local version="$1"
     local changelog="$2"
 
-    if [[ -n ${GITHUB_TOKEN-} && -n "${GITHUB_REPOSITORY}" ]]; then
+    if [[ -n ${GITHUB_TOKEN-} && -n "${GITHUB_REPOSITORY-}" ]]; then
         info "creating release v$version at $GITHUB_REPOSITORY"
         run gh release create \
             --title "v$version" \
-            --notes "$changelog" \
+            --notes-file "$changelog" \
             --repo "$GITHUB_REPOSITORY" \
             "v$version"
     fi
@@ -20,8 +20,8 @@ function github_release_asset () {
     local version="$1"
     local asset="$2"
 
-    if [[ -n ${GITHUB_TOKEN-} && -n "${GITHUB_REPOSITORY}" ]]; then
+    if [[ -n ${GITHUB_TOKEN-} && -n "${GITHUB_REPOSITORY-}" ]]; then
         info "uploading asset to release v$version at $GITHUB_REPOSITORY"
-        run gh release upload --repo "$GITHUB_REPOSITORY" "v$version" "$asset" --clobber
+        run gh release upload --repo "$GITHUB_REPOSITORY" --clobber "v$version" "$asset"
     fi
 }

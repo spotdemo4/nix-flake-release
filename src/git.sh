@@ -27,12 +27,17 @@ function git_changelog() {
     local current_tag
     current_tag="v${version}"
 
+    local file
+    file=$(mktemp)
+
     last_tag=$(git tag --sort=v:refname | grep -B1 "^v${version}$" | head -1 || echo "")
     if [[ -z "${last_tag}" ]]; then
         last_tag=$(git rev-list --max-parents=0 HEAD)
     fi
 
-    git log --pretty=format:"* %s (%H)" "${last_tag}..${current_tag}"
+    git log --pretty=format:"* %s (%H)" "${last_tag}..${current_tag}" > "${file}"
+
+    echo "${file}"
 }
 
 git_check_safe "$(pwd)"
