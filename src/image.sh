@@ -56,7 +56,7 @@ function manifest_push() {
         template="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-ARCH"
         target="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}"
 
-        manifest-tool \
+        run manifest-tool \
             --username "${REGISTRY_USERNAME}" \
             --password "${REGISTRY_PASSWORD}" \
             push from-args \

@@ -3,7 +3,12 @@
 detect_os () {
     local path="$1"
 
-    filepath=$(find -L "${path}/bin" -type f -executable -print -quit || echo "")
+    if [[ ! -d "${path}/bin" ]]; then
+        host_os
+        return
+    fi
+
+    filepath=$(find -L "${path}/bin" -type f -executable -print -quit)
     if [[ -z "${filepath-}" ]]; then
         host_os
         return
@@ -28,7 +33,12 @@ detect_os () {
 detect_arch() {
     local path="$1"
 
-    filepath=$(find -L "${path}/bin" -type f -executable -print -quit || echo "")
+    if [[ ! -d "${path}/bin" ]]; then
+        host_arch
+        return
+    fi
+
+    filepath=$(find -L "${path}/bin" -type f -executable -print -quit)
     if [[ -z "${filepath-}" ]]; then
         host_arch
         return
