@@ -57,7 +57,7 @@ also available from the [nix user repository](https://nur.nix-community.org/repo
 ### Docker
 
 ```elm
-docker run -it --rm \
+docker run -it \
   -v "$(pwd):/app" \
   -w /app \
   -v "$HOME/.ssh:/root/.ssh" \
@@ -66,6 +66,7 @@ docker run -it --rm \
   -e REGISTRY=ghcr.io \
   -e REGISTRY_USERNAME=... \
   -e REGISTRY_PASSWORD=... \
+  -e BUNDLE=... \
   ghcr.io/spotdemo4/nix-flake-release:0.9.2
 ```
 
