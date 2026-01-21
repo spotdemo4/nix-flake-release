@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function nix_system () {
+function nix_system() {
     local system
 
     system=$(nix eval --impure --raw --expr "builtins.currentSystem" 2> /dev/null)
@@ -9,7 +9,7 @@ function nix_system () {
     echo "${system}"
 }
 
-function nix_packages () {
+function nix_packages() {
     local system="$1"
 
     local packages
@@ -25,7 +25,7 @@ function nix_packages () {
     echo "${packages_json}"
 }
 
-function nix_pkg_path () {
+function nix_pkg_path() {
     local package="$1"
 
     local pkg_path
@@ -35,7 +35,7 @@ function nix_pkg_path () {
     echo "${pkg_path}"
 }
 
-function nix_pkg_pname () {
+function nix_pkg_pname() {
     local package="$1"
 
     local pname
@@ -48,7 +48,7 @@ function nix_pkg_pname () {
     echo "${pname}"
 }
 
-function nix_pkg_version () {
+function nix_pkg_version() {
     local package="$1"
 
     local version
@@ -61,7 +61,7 @@ function nix_pkg_version () {
     echo "${version}"
 }
 
-function nix_pkg_homepage () {
+function nix_pkg_homepage() {
     local package="$1"
 
     local homepage
@@ -74,7 +74,7 @@ function nix_pkg_homepage () {
     echo "${homepage}"
 }
 
-function nix_pkg_description () {
+function nix_pkg_description() {
     local package="$1"
 
     local description
@@ -87,7 +87,7 @@ function nix_pkg_description () {
     echo "${description}"
 }
 
-function nix_pkg_license () {
+function nix_pkg_license() {
     local package="$1"
 
     local license
@@ -100,7 +100,7 @@ function nix_pkg_license () {
     echo "${license}"
 }
 
-function nix_pkg_image_name () {
+function nix_pkg_image_name() {
     local package="$1"
 
     local image_name
@@ -113,7 +113,7 @@ function nix_pkg_image_name () {
     echo "${image_name}"
 }
 
-function nix_pkg_image_tag () {
+function nix_pkg_image_tag() {
     local package="$1"
 
     local image_tag
@@ -126,7 +126,7 @@ function nix_pkg_image_tag () {
     echo "${image_tag}"
 }
 
-function nix_pkg_exe () {
+function nix_pkg_exe() {
     local package="$1"
 
     local exe
@@ -139,7 +139,7 @@ function nix_pkg_exe () {
     echo "${exe}"
 }
 
-function nix_build () {
+function nix_build() {
     local package="$1"
 
     local code
@@ -149,7 +149,7 @@ function nix_build () {
     return ${code}
 }
 
-function nix_bundle () {
+function nix_bundle() {
     local package="$1"
     local bundle="$2"
 

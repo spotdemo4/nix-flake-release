@@ -113,7 +113,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
             continue
         fi
 
-        if ! upload_image "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
+        if ! image_upload "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "uploading failed"
             continue
         fi
@@ -139,7 +139,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
             continue
         fi
 
-        if ! upload_image "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
+        if ! image_upload "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "upload failed"
             continue
         fi

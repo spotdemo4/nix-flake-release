@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # logs in to Gitea using the GITHUB_TOKEN
-function gitea_login () {
+function gitea_login() {
     if [[ -n ${GITHUB_SERVER_URL-} ]]; then
         info "logging in to ${GITHUB_SERVER_URL}"
         run tea login add --name gitea --url "${GITHUB_SERVER_URL}" --token "${GITHUB_TOKEN}" || true
@@ -10,7 +10,7 @@ function gitea_login () {
 }
 
 # creates a Gitea release if it does not exist
-function gitea_release () {
+function gitea_release() {
     local tag="$1"
     local changelog="$2"
 
@@ -22,7 +22,7 @@ function gitea_release () {
         "${tag}"
 }
 
-function gitea_release_asset () {
+function gitea_release_asset() {
     local tag="$1"
     local asset="$2"
 

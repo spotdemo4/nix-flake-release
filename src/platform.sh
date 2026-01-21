@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-detect_os () {
+detect_os() {
     local path="$1"
 
     if [[ ! -d "${path}/bin" ]]; then

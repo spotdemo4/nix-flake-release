@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function release () {
+function release() {
     local tag="$1"
     local changelog="$2"
 
@@ -13,7 +13,7 @@ function release () {
     fi
 }
 
-function release_asset () {
+function release_asset() {
     local tag="$1"
     local asset="$2"
 
