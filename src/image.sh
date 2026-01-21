@@ -59,11 +59,15 @@ function manifest_push() {
         run manifest-tool \
             --username "${REGISTRY_USERNAME}" \
             --password "${REGISTRY_PASSWORD}" \
-            push from-args \
+            push \
+            --type oci \
+            from-args \
             --platforms "${platforms}" \
             --template "${template}" \
             --target "${target}" \
             --tags "latest" \
-            --annotations "org.opencontainers.image.source=\"${source}\",org.opencontainers.image.description=\"${description}\",org.opencontainers.image.licenses=\"${license}\""
+            --annotations "org.opencontainers.image.source=\"${source}\"" \
+            --annotations "org.opencontainers.image.description=\"${description}\"" \
+            --annotations "org.opencontainers.image.licenses=\"${license}\""
     fi
 }
