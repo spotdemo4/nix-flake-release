@@ -152,14 +152,8 @@ for PACKAGE in "${PACKAGES[@]}"; do
     fi
 done
 
-# add images to manifest
-for ARCH in "${IMAGE_ARCHS[@]}"; do
-    info "adding ${ARCH} to manifest"
-    manifest_add "${TAG#v}" "${ARCH}"
-done
-
-# push manifest
-manifest_push "${TAG#v}"
+# create and push manifest
+manifest_push "${TAG#v}" "$( IFS=','; echo "${IMAGE_ARCHS[*]}" )"
 
 # cleanup
 rm -rf ~/.config/tea # gitea tea

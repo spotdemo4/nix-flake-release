@@ -38,12 +38,12 @@
           ];
         };
         deps = with pkgs; [
-          buildah
           file
           findutils
           gh
           gnused
           jq
+          manifest-tool
           mktemp
           ncurses
           skopeo
