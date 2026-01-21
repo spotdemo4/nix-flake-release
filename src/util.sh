@@ -8,7 +8,7 @@ function archive() {
     filecount=$(find -L "${path}" -type f | wc -l | tr -d ' ')
 
     local bincount
-    filecount=$(find -L "${path}/bin" -type f | wc -l | tr -d ' ')
+    bincount=$(find -L "${path}/bin" -type f | wc -l | tr -d ' ')
 
     local indir
     indir=$(mktemp -d)
