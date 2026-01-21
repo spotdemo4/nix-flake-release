@@ -55,7 +55,6 @@ fi
 
 # build and upload assets
 STORE_PATHS=()
-IMAGE_PLATFORMS=()
 for PACKAGE in "${PACKAGES[@]}"; do
     info ""
 
@@ -96,42 +95,67 @@ for PACKAGE in "${PACKAGES[@]}"; do
     # package info
     OS=$(detect_os "${STORE_PATH}")
     ARCH=$(detect_arch "${STORE_PATH}")
-    ONLY_BINS=$(only_bins "${STORE_PATH}")
 
     # `dockerTools.buildLayeredImage`
-    if [[ -n "${IMAGE_NAME}" && -n "${IMAGE_TAG}" && -f "${STORE_PATH}" && "${STORE_PATH}" == *".tar.gz" ]]; then
-
+    if
+        [[ -n "${IMAGE_NAME}" ]] &&
+        [[ -n "${IMAGE_TAG}" ]] &&
+        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
+        [[ -n "${REGISTRY-}" ]] &&
+        [[ -n "${REGISTRY_USERNAME-}" ]] &&
+        [[ -n "${REGISTRY_PASSWORD-}" ]] &&
+        [[ -f "${STORE_PATH}" ]] &&
+        [[ "${STORE_PATH}" == *".tar.gz" ]];
+    then
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
-        IMAGE_OS=$(image_os "${STORE_PATH}")
         IMAGE_ARCH=$(image_arch "${STORE_PATH}")
+
+        if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
+            warn "image already exists, skipping upload"
+            continue
+        fi
 
         if ! upload_image "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "uploading failed"
             continue
         fi
 
-        IMAGE_PLATFORMS+=( "${IMAGE_OS}/${IMAGE_ARCH}" )
-
     # `dockerTools.streamLayeredImage`
-    elif [[ -n "${IMAGE_NAME}" && -n "${IMAGE_TAG}" && -f "${STORE_PATH}" && -x "${STORE_PATH}" ]]; then
-
+    elif
+        [[ -n "${IMAGE_NAME}" ]] &&
+        [[ -n "${IMAGE_TAG}" ]] &&
+        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
+        [[ -n "${REGISTRY-}" ]] &&
+        [[ -n "${REGISTRY_USERNAME-}" ]] &&
+        [[ -n "${REGISTRY_PASSWORD-}" ]] &&
+        [[ -f "${STORE_PATH}" ]] &&
+        [[ -x "${STORE_PATH}" ]];
+    then
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
         IMAGE_ZIPPED=$(image_gzip "${STORE_PATH}")
-        IMAGE_OS=$(image_os "${IMAGE_ZIPPED}")
         IMAGE_ARCH=$(image_arch "${IMAGE_ZIPPED}")
+
+        if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
+            info "image already exists, skipping upload"
+            continue
+        fi
 
         if ! upload_image "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "upload failed"
             continue
         fi
 
-        IMAGE_PLATFORMS+=( "${IMAGE_OS}/${IMAGE_ARCH}" )
-
     # `mkDerivation` executable(s)
-    elif [[ -n "${PNAME}" && -n "${VERSION}" && -d "${STORE_PATH}" && -n "${ONLY_BINS-}" ]]; then
-
+    elif
+        [[ -n "${PNAME}" ]] &&
+        [[ -n "${VERSION}" ]] &&
+        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
+        [[ -n "${GITHUB_TOKEN-}" ]] &&
+        [[ -d "${STORE_PATH}" ]] &&
+        [[ -n "$(only_bins "${STORE_PATH}")" ]];
+    then
         info "compressing $(bold "${PNAME}")"
 
         if ! ARCHIVE=$(archive "${STORE_PATH}" "${OS}"); then
@@ -147,8 +171,14 @@ for PACKAGE in "${PACKAGES[@]}"; do
         fi
 
     # `mkDerivation` bundle
-    elif [[ -n "${PNAME}" && -n "${VERSION}" && -d "${STORE_PATH}" && -n "${BUNDLE-}" ]]; then
-
+    elif
+        [[ -n "${PNAME}" ]] &&
+        [[ -n "${VERSION}" ]] &&
+        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
+        [[ -n "${GITHUB_TOKEN-}" ]] &&
+        [[ -d "${STORE_PATH}" ]] &&
+        [[ -n "${BUNDLE-}" ]];
+    then
         info "bundling $(bold "${PNAME}")"
 
         if ! ARCHIVE=$(nix_bundle "${PACKAGE}" "${BUNDLE}"); then
@@ -169,7 +199,14 @@ for PACKAGE in "${PACKAGES[@]}"; do
 done
 
 # create and push manifest
-manifest_push "${TAG#v}" "$( IFS=','; echo "${IMAGE_PLATFORMS[*]}" )" "${HOMEPAGE-}" "${DESCRIPTION-}" "${LICENSE-}"
+if
+    [[ -n "${GITHUB_REPOSITORY-}" ]] &&
+    [[ -n "${REGISTRY-}" ]] &&
+    [[ -n "${REGISTRY_USERNAME-}" ]] &&
+    [[ -n "${REGISTRY_PASSWORD-}" ]];
+then
+    manifest_update "${TAG#v}" "${HOMEPAGE-}" "${DESCRIPTION-}" "${LICENSE-}"
+fi
 
 # cleanup
 rm -rf ~/.config/tea # gitea tea

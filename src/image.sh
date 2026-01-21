@@ -1,27 +1,25 @@
 #!/usr/bin/env bash
 
 # uploads a image to the container registry
-function upload_image() {
+function image_upload() {
     local path="$1"
     local tag="$2"
     local arch="$3"
 
-    if [[ -n "${REGISTRY-}" && -n "${GITHUB_REPOSITORY-}" && -n "${REGISTRY_USERNAME-}" && -n "${REGISTRY_PASSWORD-}" ]]; then
-        local image
-        image="docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-${arch}"
+    local image
+    image="docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-${arch}"
 
-        info "uploading to ${image}"
-        run skopeo --insecure-policy copy \
-            --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
-            "docker-archive:${path}" "${image}"
-    fi
+    info "uploading to ${image}"
+    run skopeo --insecure-policy copy \
+        --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
+        "docker-archive:${path}" "${image}"
 }
 
 function image_os() {
     local path="$1"
 
     local os
-    os=$(skopeo inspect --format "{{.Os}}" "docker-archive:${path}")
+    os=$(skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" --format "{{.Os}}" "docker-archive:${path}")
 
     echo "${os}"
 }
@@ -30,7 +28,7 @@ function image_arch() {
     local path="$1"
 
     local arch
-    arch=$(skopeo inspect --format "{{.Architecture}}" "docker-archive:${path}")
+    arch=$(skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" --format "{{.Architecture}}" "docker-archive:${path}")
 
     echo "${arch}"
 }
@@ -45,29 +43,47 @@ function image_gzip() {
     echo "${image}"
 }
 
-function manifest_push() {
+function image_exists() {
     local tag="$1"
-    local platforms="$2"
-    local source="$3"
-    local description="$4"
-    local license="$5"
+    local arch="$2"
 
-    if [[ -n "${REGISTRY-}" && -n "${GITHUB_REPOSITORY-}" && -n ${REGISTRY_USERNAME-} && -n ${REGISTRY_PASSWORD-} ]]; then
-        template="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-ARCH"
-        target="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}"
+    local image
+    image="docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-${arch}"
 
-        run manifest-tool \
-            --username "${REGISTRY_USERNAME}" \
-            --password "${REGISTRY_PASSWORD}" \
-            push \
-            --type oci \
-            from-args \
-            --platforms "${platforms}" \
-            --template "${template}" \
-            --target "${target}" \
-            --tags "latest" \
-            --annotations "org.opencontainers.image.source=\"${source}\"" \
-            --annotations "org.opencontainers.image.description=\"${description}\"" \
-            --annotations "org.opencontainers.image.licenses=\"${license}\""
+    if skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" "${image}" &> /dev/null; then
+        return 0
     fi
+
+    return 1
+}
+
+function manifest_update() {
+    local tag="$1"
+    local source="$2"
+    local description="$3"
+    local license="$4"
+
+    local platforms=()
+    local remote_tags
+    readarray -t remote_tags < <(skopeo --insecure-policy list-tags --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}" | jq -r ".Tags[] | select(startswith(\"${tag}-\"))")
+    for remote_tag in "${remote_tags[@]}"; do
+        platforms+=( "$(skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" --format "{{.Os}}/{{.Architecture}}" "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${remote_tag}")" )
+    done
+
+    template="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-ARCH"
+    target="${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}"
+
+    run manifest-tool \
+        --username "${REGISTRY_USERNAME}" \
+        --password "${REGISTRY_PASSWORD}" \
+        push \
+        --type oci \
+        from-args \
+        --platforms "$( IFS=','; echo "${platforms[*]}" )" \
+        --template "${template}" \
+        --target "${target}" \
+        --tags "latest" \
+        --annotations "org.opencontainers.image.source=${source}" \
+        --annotations "org.opencontainers.image.description=${description}" \
+        --annotations "org.opencontainers.image.licenses=${license}"
 }

@@ -236,6 +236,13 @@
             config = {
               Cmd = [ "${pkgs.lib.meta.getExe packages.default}" ];
               Env = [ "DOCKER=true" ];
+              Labels = {
+                "org.opencontainers.image.source" = packages.default.meta.homepage;
+                "org.opencontainers.image.version" = packages.default.version;
+                "org.opencontainers.image.licenses" = packages.default.meta.license.spdxId;
+                "org.opencontainers.image.title" = packages.default.pname;
+                "org.opencontainers.image.description" = packages.default.meta.description;
+              };
             };
           };
         };
