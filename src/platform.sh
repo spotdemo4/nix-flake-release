@@ -22,11 +22,7 @@ detect_os () {
         os="windows"
     fi
 
-    if [[ -z "${os-}" ]]; then
-        host_os
-    fi
-
-    echo "${os}"
+    echo "${os:-"$(host_os)"}"
 }
 
 detect_arch() {
@@ -55,11 +51,7 @@ detect_arch() {
         arch="mips"
     fi
 
-    if [[ -z "${arch-}" ]]; then
-        host_arch
-    fi
-
-    echo "${arch}"
+    echo "${arch:-"$(host_arch)"}"
 }
 
 host_os() {
