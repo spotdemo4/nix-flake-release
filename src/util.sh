@@ -60,15 +60,18 @@ function rename() {
     local os="$4"
     local arch="$5"
 
-    local filename
-    filename=$(basename "${filepath}")
-    fileext="${filename##*.}"
-
     local tmpdir
     tmpdir=$(mktemp -d)
 
+    local filename
     local final
-    final="${tmpdir}/${name}_${version}_${os}_${arch}.${fileext}"
+    filename=$(basename "${filepath}")
+    if [[ "$filename" == *.* ]]; then
+        fileext="${filename##*.}"
+        final="${tmpdir}/${name}_${version}_${os}_${arch}.${fileext}"
+    else
+        final="${tmpdir}/${name}_${version}_${os}_${arch}"
+    fi
 
     cp -R "${filepath}" "${final}"
     rm -rf "${filepath}" &> /dev/null || true
