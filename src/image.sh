@@ -64,8 +64,6 @@ function manifest_push() {
             --template "${template}" \
             --target "${target}" \
             --tags "latest" \
-            --annotations "org.opencontainers.image.source=${source}" \
-            --annotations "org.opencontainers.image.description=${description}" \
-            --annotations "org.opencontainers.image.licenses=${license}"
+            --annotations "org.opencontainers.image.source=\"${source}\",org.opencontainers.image.description=\"${description}\",org.opencontainers.image.licenses=\"${license}\""
     fi
 }
