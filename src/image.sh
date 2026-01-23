@@ -60,8 +60,19 @@ function image_exists() {
 function manifest_update() {
     local tag="$1"
 
+    local list_tags
+    if ! list_tags=$(skopeo --insecure-policy list-tags --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}"); then
+        warn "failed to fetch image tags"
+        return 0
+    fi
+
     local remote_tags
-    readarray -t remote_tags < <(skopeo --insecure-policy list-tags --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}" | jq -r ".Tags[] | select(startswith(\"${tag}-\"))")
+    readarray -t remote_tags < <(echo "${list_tags}" | jq -r --arg tag "${tag}" '.Tags[] | select(startswith("$tag-"))')
+
+    if [[ "${#remote_tags[@]}" -eq 0 ]]; then
+        warn "no remote images found for tag '${tag}'"
+        return 0
+    fi
 
     local inspect
     local platforms=()
@@ -77,6 +88,10 @@ function manifest_update() {
 
         if [[ "${first}" == true ]]; then
             first=false
+
+            if [[ "$(echo "${inspect}" | jq '.Labels')" == "null" ]]; then
+                continue
+            fi
 
             readarray -t label_keys < <(echo "${inspect}" | jq -r '.Labels | keys[]')
             for label_key in "${label_keys[@]}"; do
