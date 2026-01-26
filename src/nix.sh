@@ -173,12 +173,17 @@ function nix_bundle() {
             fi
             ;;
 
-        *)
+        "portable")
             info "creating portable bundle"
             if ! run nix bundle --bundler github:DavHau/nix-portable#zstd-max ".#${package}" -o "${tmplink}"; then
                 warn "portable bundle failed"
                 return 1
             fi
+            ;;
+
+        *)
+            warn "unknown bundle type: ${bundle}"
+            return 1
             ;;
     esac
 

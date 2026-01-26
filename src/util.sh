@@ -16,7 +16,10 @@ function archive() {
     local outdir
     outdir=$(mktemp -d)
 
-    if [[ "${filecount}" -eq "${bincount}" ]]; then
+    if [[ "${filecount}" -eq 1 ]]; then
+        filepath=$(find -L "${path}" -type f)
+        cp -R "${filepath}" "${indir}/"
+    elif [[ "${filecount}" -eq "${bincount}" ]]; then
         cp -R "${path}/bin/"* "${indir}/"
     else
         cp -R "${path}/"* "${indir}/"
@@ -53,7 +56,7 @@ function archive() {
         echo "${outdir}/archive.tar.xz"
     fi
 
-    rm -rf "${indir}"
+    delete "${indir}"
 }
 
 function rename() {
@@ -77,9 +80,10 @@ function rename() {
     fi
 
     cp -R "${filepath}" "${final}"
-    rm -rf "${filepath}" &> /dev/null || true
 
     echo "${final}"
+
+    delete "${filepath}"
 }
 
 function only_bins() {
@@ -100,6 +104,10 @@ function only_bins() {
     if [[ "${filecount}" -eq "${bincount}" ]]; then
         echo "true"
     fi
+}
+
+function delete() {
+    rm -rf "${1}" &> /dev/null || true
 }
 
 function array() {

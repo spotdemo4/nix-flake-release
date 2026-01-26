@@ -13,6 +13,8 @@ function image_upload() {
     run skopeo --insecure-policy copy \
         --dest-creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" \
         "docker-archive:${path}" "${image}"
+
+    delete "${path}"
 }
 
 function image_os() {
@@ -41,6 +43,8 @@ function image_gzip() {
     "${path}" | gzip --fast > "${image}"
 
     echo "${image}"
+
+    delete "${path}"
 }
 
 function image_exists() {

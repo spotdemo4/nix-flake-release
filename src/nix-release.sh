@@ -103,6 +103,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
         IMAGE_ARCH=$(image_arch "${STORE_PATH}")
+        info "arch: ${IMAGE_ARCH}"
 
         if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "image already exists, skipping upload"
@@ -128,7 +129,9 @@ for PACKAGE in "${PACKAGES[@]}"; do
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
         IMAGE_ZIPPED=$(image_gzip "${STORE_PATH}")
+
         IMAGE_ARCH=$(image_arch "${IMAGE_ZIPPED}")
+        info "arch: ${IMAGE_ARCH}"
 
         if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             info "image already exists, skipping upload"
@@ -215,5 +218,5 @@ then
 fi
 
 # cleanup
-rm -rf ~/.config/tea # gitea tea
-rm -f "${CHANGELOG}" # changelog
+delete ~/.config/tea  # gitea tea
+delete "${CHANGELOG}" # changelog

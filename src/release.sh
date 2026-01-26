@@ -25,5 +25,5 @@ function release_asset() {
         github_release_asset "${tag}" "${asset}"
     fi
 
-    rm -rf "${asset}"
+    delete "${asset}"
 }
