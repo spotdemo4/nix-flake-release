@@ -22,6 +22,9 @@ function archive() {
         cp -R "${path}/"* "${indir}/"
     fi
 
+    # set permissions
+    chmod -R 0755 "${indir}/"
+
     # archive for windows as zip
     if [[ "${os}" == "windows" ]]; then
 
