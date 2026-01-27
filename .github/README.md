@@ -18,10 +18,10 @@ nix-flake-release [packages...]
 | GITHUB_TYPE       | Host type for release           | `github` / `gitea` / `forgejo`                                                                                                                                        |
 | GITHUB_REPOSITORY | Repository to push releases     | `spotdemo4/nix-flake-release`                                                                                                                                         |
 | GITHUB_SERVER_URL | Server to push releases         | `https://github.com`                                                                                                                                                  |
-| GITHUB_ACTOR      | User for Gitea & Forgejo        |                                                                                                                                                                       |
+| GITHUB_ACTOR      | User for Gitea & Forgejo        | `github-actions[bot]`                                                                                                                                                 |
 | GITHUB_TOKEN      | Token used to push releases     |                                                                                                                                                                       |
 | REGISTRY          | Container registry              | `ghcr.io`                                                                                                                                                             |
-| REGISTRY_USERNAME | Username for container registry |                                                                                                                                                                       |
+| REGISTRY_USERNAME | Username for container registry | `github-actions[bot]`                                                                                                                                                 |
 | REGISTRY_PASSWORD | Password for container registry |                                                                                                                                                                       |
 | BUNDLE            | Type of bundle to create        | [`appimage`](https://github.com/ralismark/nix-appimage) / [`arx`](https://github.com/nix-community/nix-bundle) / [`portable`](https://github.com/DavHau/nix-portable) |
 
@@ -34,6 +34,9 @@ nix-flake-release [packages...]
   uses: spotdemo4/nix-flake-release@v0.10.1
   with:
     packages: # default: all
+    github_repository: # default: ${{ github.repository }}
+    github_server_url: # default: ${{ github.server_url }}
+    github_actor: # default: ${{ github.actor }}
     github_token: # default: ${{ github.token }}
     registry: # default: ghcr.io
     registry_username: # default: ${{ github.actor }}

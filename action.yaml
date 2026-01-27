@@ -6,7 +6,25 @@ inputs:
   packages:
     description: nix packages to release
     required: false
-    default: ""
+
+  github_type:
+    description: type of github server (github, gitea, forgejo)
+    required: false
+
+  github_repository:
+    description: github repository in the form owner/repo
+    required: false
+    default: ${{ github.repository }}
+
+  github_server_url:
+    description: github server url
+    required: false
+    default: ${{ github.server_url }}
+
+  github_actor:
+    description: github actor
+    required: false
+    default: ${{ github.actor }}
 
   github_token:
     description: github token
@@ -31,13 +49,16 @@ inputs:
   bundle:
     description: whether to bundle nix derivations before archiving
     required: false
-    default: ""
 
 runs:
   using: docker
   image: docker://ghcr.io/spotdemo4/nix-flake-release:0.10.1
   env:
     ENV_ARGS: ${{ inputs.packages }}
+    GITHUB_TYPE: ${{ inputs.github_type }}
+    GITHUB_REPOSITORY: ${{ inputs.github_repository }}
+    GITHUB_SERVER_URL: ${{ inputs.github_server_url }}
+    GITHUB_ACTOR: ${{ inputs.github_actor }}
     GITHUB_TOKEN: ${{ inputs.github_token }}
     REGISTRY: ${{ inputs.registry }}
     REGISTRY_USERNAME: ${{ inputs.registry_username }}

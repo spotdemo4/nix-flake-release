@@ -29,23 +29,29 @@ if [[ -n "${ENV_ARGS-}" ]]; then
     ARGS+=( "${ENV_ARGS[@]}" )
 fi
 
-# get type
+# git type
 if ! TYPE=$(release_type); then
     exit 1
 fi
 info "git type: ${TYPE}"
 
-# get tag
+# git tag
 if [[ -z "${TAG-}" ]]; then
     TAG=$(git_latest_tag)
 fi
 info "git tag: ${TAG}"
 
-# get user
+# git user
 if [[ -z "${GITHUB_ACTOR-}" ]]; then
     GITHUB_ACTOR=$(git_user)
 fi
 info "git user: ${GITHUB_ACTOR}"
+
+# registry user
+if [[ -z "${REGISTRY_USERNAME-}" ]]; then
+    REGISTRY_USERNAME=$(git_user)
+fi
+info "registry user: ${REGISTRY_USERNAME}"
 
 # get changelog
 CHANGELOG=$(git_changelog "${TAG}")
