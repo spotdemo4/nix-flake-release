@@ -3,7 +3,13 @@
 [![check](https://github.com/spotdemo4/nix-flake-release/actions/workflows/check.yaml/badge.svg?branch=main)](https://github.com/spotdemo4/nix-flake-release/actions/workflows/check.yaml)
 [![vulnerable](https://github.com/spotdemo4/nix-flake-release/actions/workflows/vulnerable.yaml/badge.svg?branch=main)](https://github.com/spotdemo4/nix-flake-release/actions/workflows/vulnerable.yaml)
 
-Generates release artifacts for packages in a nix flake
+Generates release artifacts for packages in a nix flake:
+
+- `dockerTools.buildLayeredImage` & `dockerTools.streamLayeredImage` will be uploaded to a container registry
+- packages that contain only executable binaries will be compressed & uploaded to a release directly
+- packages that depend on nix store paths can be bundled into an AppImage (`appimage`), Arx tarball (`arx`), or bundled with a portable nix binary (`portable`)
+
+Works with GitHub, Gitea & Forgejo
 
 ## Usage
 
