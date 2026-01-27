@@ -54,7 +54,7 @@
           zip
         ];
       in
-      rec {
+      {
         devShells = {
           default = pkgs.mkShell {
             name = "dev";
@@ -167,7 +167,7 @@
           };
         };
 
-        packages = with pkgs.lib; {
+        packages = with pkgs.lib; rec {
           default = pkgs.stdenv.mkDerivation (finalAttrs: {
             pname = "nix-flake-release";
             version = "0.9.8";
@@ -224,8 +224,8 @@
           });
 
           image = pkgs.dockerTools.buildLayeredImage {
-            name = packages.default.pname;
-            tag = packages.default.version;
+            name = default.pname;
+            tag = default.version;
 
             fromImage = pkgs.image.nix;
             contents = with pkgs; [
@@ -233,17 +233,17 @@
             ];
 
             created = "now";
-            meta = packages.default.meta;
+            meta = default.meta;
 
             config = {
-              Cmd = [ "${meta.getExe packages.default}" ];
+              Entrypoint = [ "${meta.getExe default}" ];
               Env = [ "DOCKER=true" ];
               Labels = {
-                "org.opencontainers.image.title" = packages.default.pname;
-                "org.opencontainers.image.description" = packages.default.meta.description;
-                "org.opencontainers.image.source" = packages.default.meta.homepage;
-                "org.opencontainers.image.version" = packages.default.version;
-                "org.opencontainers.image.licenses" = packages.default.meta.license.spdxId;
+                "org.opencontainers.image.title" = default.pname;
+                "org.opencontainers.image.description" = default.meta.description;
+                "org.opencontainers.image.source" = default.meta.homepage;
+                "org.opencontainers.image.version" = default.version;
+                "org.opencontainers.image.licenses" = default.meta.license.spdxId;
               };
             };
           };
