@@ -11,6 +11,20 @@ Generates release artifacts for packages in a nix flake
 nix-flake-release [packages...]
 ```
 
+### Environment
+
+| Variable          | Description                     | Example                                                                                                                                                               |
+| ----------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GITHUB_TYPE       | Host type for release           | `github` / `gitea` / `forgejo`                                                                                                                                        |
+| GITHUB_REPOSITORY | Repository to push releases     | `spotdemo4/nix-flake-release`                                                                                                                                         |
+| GITHUB_SERVER_URL | Server to push releases         | `https://github.com`                                                                                                                                                  |
+| GITHUB_ACTOR      | User for Gitea & Forgejo        |                                                                                                                                                                       |
+| GITHUB_TOKEN      | Token used to push releases     |                                                                                                                                                                       |
+| REGISTRY          | Container registry              | `ghcr.io`                                                                                                                                                             |
+| REGISTRY_USERNAME | Username for container registry |                                                                                                                                                                       |
+| REGISTRY_PASSWORD | Password for container registry |                                                                                                                                                                       |
+| BUNDLE            | Type of bundle to create        | [`appimage`](https://github.com/ralismark/nix-appimage) / [`arx`](https://github.com/nix-community/nix-bundle) / [`portable`](https://github.com/DavHau/nix-portable) |
+
 ## Install
 
 ### Action
@@ -24,7 +38,7 @@ nix-flake-release [packages...]
     registry: # default: ghcr.io
     registry_username: # default: ${{ github.actor }}
     registry_password: # default: ${{ github.token }}
-    bundle: # whether to bundle generic derivations, default: true
+    bundle: # default: null
 ```
 
 ### Nix
@@ -44,9 +58,9 @@ inputs = {
 };
 
 outputs = { nix-flake-release, ... }: {
-    devShells."${system}".default = pkgs.mkShell {
+    devShells.x86_64-linux.default = pkgs.mkShell {
         packages = [
-            nix-flake-release."${system}".default
+            nix-flake-release.packages.x86_64-linux.default
         ];
     };
 }
@@ -62,8 +76,8 @@ docker run -it \
   -w /app \
   -v "$HOME/.ssh:/root/.ssh" \
   -e GITHUB_TOKEN=... \
-  -e GITHUB_REPOSITORY=spotdemo4/nix-flake-release \
-  -e REGISTRY=ghcr.io \
+  -e GITHUB_REPOSITORY=... \
+  -e REGISTRY=... \
   -e REGISTRY_USERNAME=... \
   -e REGISTRY_PASSWORD=... \
   -e BUNDLE=... \
@@ -74,7 +88,7 @@ docker run -it \
 
 #### [nix-release.sh](/src/nix-release.sh) - bash script
 
-requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo/), [gh](https://cli.github.com/) (github), [tea](https://gitea.com/gitea/tea) (gitea)
+requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo/), [manifest-tool](https://github.com/estesp/manifest-tool), [gh](https://cli.github.com/) (github), [tea](https://gitea.com/gitea/tea) (gitea), [fj](https://codeberg.org/forgejo-contrib/forgejo-cli) (forgejo)
 
 ```elm
 git clone https://github.com/spotdemo4/nix-flake-release &&

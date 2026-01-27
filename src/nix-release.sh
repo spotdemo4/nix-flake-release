@@ -13,6 +13,7 @@ source "$DIR/util.sh"
 source "$DIR/git.sh"
 source "$DIR/github.sh"
 source "$DIR/gitea.sh"
+source "$DIR/forgejo.sh"
 source "$DIR/release.sh"
 source "$DIR/image.sh"
 source "$DIR/nix.sh"
@@ -28,29 +29,44 @@ if [[ -n "${ENV_ARGS-}" ]]; then
     ARGS+=( "${ENV_ARGS[@]}" )
 fi
 
-# login to gitea
-if [[ -n "${GITEA_ACTIONS-}" ]]; then
-    gitea_login
+# get type
+if ! TYPE=$(release_type); then
+    exit 1
 fi
+info "git type: ${TYPE}"
 
 # get tag
 if [[ -z "${TAG-}" ]]; then
     TAG=$(git_latest_tag)
 fi
+info "git tag: ${TAG}"
+
+# get user
+if [[ -z "${GITHUB_ACTOR-}" ]]; then
+    GITHUB_ACTOR=$(git_user)
+fi
+info "git user: ${GITHUB_ACTOR}"
 
 # get changelog
 CHANGELOG=$(git_changelog "${TAG}")
 
+# login
+if [[ "${TYPE}" == "gitea" ]]; then
+    gitea_login
+elif [[ "${TYPE}" == "forgejo" ]]; then
+    forgejo_login
+fi
+
 # release
-if ! release "${TAG}" "${CHANGELOG}"; then
+if ! release "${TYPE}" "${TAG}" "${CHANGELOG}"; then
     warn "could not create release ${TAG}"
 fi
 
 # get nix packages
 NIX_SYSTEM=$(nix_system)
-readarray -t PACKAGES < <(nix_packages "$NIX_SYSTEM")
+readarray -t PACKAGES < <(nix_packages "${NIX_SYSTEM}")
 if [[ ${#PACKAGES[@]} -eq 0 ]]; then
-    warn "no packages found in the nix flake for system '$NIX_SYSTEM'"
+    warn "no packages found in the nix flake for system '${NIX_SYSTEM}'"
 fi
 
 # build and upload assets
@@ -58,20 +74,20 @@ STORE_PATHS=()
 for PACKAGE in "${PACKAGES[@]}"; do
     info ""
 
-    if [[ "${#ARGS[@]}" -ne 0 && ! ${ARGS[*]} =~ $PACKAGE ]]; then
-        info "skipping package '$PACKAGE'"
+    if [[ "${#ARGS[@]}" -ne 0 && ! ${ARGS[*]} =~ ${PACKAGE} ]]; then
+        info "skipping package '${PACKAGE}'"
         continue
     fi
 
-    info "evaluating $(bold "$PACKAGE")"
-    STORE_PATH=$(nix_pkg_path "$PACKAGE")
-    if [[ ${STORE_PATHS[*]} =~ $STORE_PATH ]]; then
-        info "$PACKAGE: already built, skipping"
+    info "evaluating $(bold "${PACKAGE}")"
+    STORE_PATH=$(nix_pkg_path "${PACKAGE}")
+    if [[ ${STORE_PATHS[*]} =~ ${STORE_PATH} ]]; then
+        info "${PACKAGE}: already built, skipping"
         continue
     fi
     STORE_PATHS+=( "${STORE_PATH}" )
 
-    if ! nix_build "$PACKAGE"; then
+    if ! nix_build "${PACKAGE}"; then
         warn "build failed"
         continue
     fi
@@ -85,7 +101,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
     IMAGE_TAG=$(nix_pkg_image_tag "${PACKAGE}")
 
     if [[ "${VERSION}" != "${TAG#v}" && "${IMAGE_TAG}" != "${TAG#v}" ]]; then
-        warn "package version '${VERSION}' does not match git tag '${TAG#v}'"
+        warn "package version '${VERSION:-"${IMAGE_TAG}"}' does not match git tag '${TAG#v}'"
         continue
     fi
 
@@ -93,15 +109,12 @@ for PACKAGE in "${PACKAGES[@]}"; do
     if
         [[ -n "${IMAGE_NAME}" ]] &&
         [[ -n "${IMAGE_TAG}" ]] &&
-        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
-        [[ -n "${REGISTRY-}" ]] &&
-        [[ -n "${REGISTRY_USERNAME-}" ]] &&
-        [[ -n "${REGISTRY_PASSWORD-}" ]] &&
         [[ -f "${STORE_PATH}" ]] &&
         [[ "${STORE_PATH}" == *".tar.gz" ]];
     then
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
+        IMAGES="true"
         IMAGE_ARCH=$(image_arch "${STORE_PATH}")
         info "arch: ${IMAGE_ARCH}"
 
@@ -111,7 +124,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
         fi
 
         if ! image_upload "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
-            warn "uploading failed"
+            warn "upload failed"
             continue
         fi
 
@@ -119,17 +132,13 @@ for PACKAGE in "${PACKAGES[@]}"; do
     elif
         [[ -n "${IMAGE_NAME}" ]] &&
         [[ -n "${IMAGE_TAG}" ]] &&
-        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
-        [[ -n "${REGISTRY-}" ]] &&
-        [[ -n "${REGISTRY_USERNAME-}" ]] &&
-        [[ -n "${REGISTRY_PASSWORD-}" ]] &&
         [[ -f "${STORE_PATH}" ]] &&
         [[ -x "${STORE_PATH}" ]];
     then
-        info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
+        info "detected as image stream $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
+        IMAGES="true"
         IMAGE_ZIPPED=$(image_gzip "${STORE_PATH}")
-
         IMAGE_ARCH=$(image_arch "${IMAGE_ZIPPED}")
         info "arch: ${IMAGE_ARCH}"
 
@@ -147,8 +156,6 @@ for PACKAGE in "${PACKAGES[@]}"; do
     elif
         [[ -n "${PNAME}" ]] &&
         [[ -n "${VERSION}" ]] &&
-        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
-        [[ -n "${GITHUB_TOKEN-}" ]] &&
         [[ -d "${STORE_PATH}" ]] &&
         [[ -n "$(only_bins "${STORE_PATH}")" ]];
     then
@@ -167,7 +174,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
 
         ASSET=$(rename "${ARCHIVE}" "${PNAME}" "${VERSION}" "${OS}" "${ARCH}")
 
-        if ! release_asset "${TAG}" "${ASSET}"; then
+        if ! release_asset "${TYPE}" "${TAG}" "${ASSET}"; then
             warn "uploading failed"
             continue
         fi
@@ -176,14 +183,12 @@ for PACKAGE in "${PACKAGES[@]}"; do
     elif
         [[ -n "${PNAME}" ]] &&
         [[ -n "${VERSION}" ]] &&
-        [[ -n "${GITHUB_REPOSITORY-}" ]] &&
-        [[ -n "${GITHUB_TOKEN-}" ]] &&
         [[ -d "${STORE_PATH}" ]];
     then
         info "detected as bundle $(bold "${PNAME}")"
 
         if [[ -z "${BUNDLE-}" ]]; then
-            warn "no bundle type specified"
+            warn "BUNDLE is not set, no bundle type specified"
             continue
         fi
 
@@ -194,7 +199,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
 
         ASSET=$(rename "${ARCHIVE}" "${PNAME}" "${VERSION}" "$(host_os)" "$(host_arch)")
 
-        if ! release_asset "${TAG}" "${ASSET}"; then
+        if ! release_asset "${TYPE}" "${TAG}" "${ASSET}"; then
             warn "uploading failed"
             continue
         fi
@@ -207,14 +212,16 @@ done
 info ""
 
 # create and push manifest
-if
-    [[ -n "${GITHUB_REPOSITORY-}" ]] &&
-    [[ -n "${REGISTRY-}" ]] &&
-    [[ -n "${REGISTRY_USERNAME-}" ]] &&
-    [[ -n "${REGISTRY_PASSWORD-}" ]];
-then
+if [[ "${IMAGES-}" == "true" ]]; then
     info "updating image manifest for tag $(bold "${TAG#v}")"
     manifest_update "${TAG#v}"
+fi
+
+# logout
+if [[ "${TYPE}" == "gitea" ]]; then
+    gitea_logout
+elif [[ "${TYPE}" == "forgejo" ]]; then
+    forgejo_logout
 fi
 
 # cleanup

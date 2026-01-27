@@ -6,6 +6,26 @@ function image_upload() {
     local tag="$2"
     local arch="$3"
 
+    if [[ -z "${REGISTRY-}" ]]; then
+        warn "REGISTRY is not set, cannot upload image to container registry"
+        return 1
+    fi
+
+    if [[ -z "${GITHUB_REPOSITORY-}" ]]; then
+        warn "GITHUB_REPOSITORY is not set, cannot upload image to container registry"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_USERNAME-}" ]]; then
+        warn "REGISTRY_USERNAME is not set, cannot upload image to container registry"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_PASSWORD-}" ]]; then
+        warn "REGISTRY_PASSWORD is not set, cannot upload image to container registry"
+        return 1
+    fi
+
     local image
     image="docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-${arch}"
 
@@ -18,10 +38,10 @@ function image_upload() {
 }
 
 function image_os() {
-    local path="$1"
+    local path="$1"]
 
     local os
-    os=$(skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" --format "{{.Os}}" "docker-archive:${path}")
+    os=$(skopeo --insecure-policy inspect --format "{{.Os}}" "docker-archive:${path}")
 
     echo "${os}"
 }
@@ -30,7 +50,7 @@ function image_arch() {
     local path="$1"
 
     local arch
-    arch=$(skopeo --insecure-policy inspect --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" --format "{{.Architecture}}" "docker-archive:${path}")
+    arch=$(skopeo --insecure-policy inspect --format "{{.Architecture}}" "docker-archive:${path}")
 
     echo "${arch}"
 }
@@ -51,6 +71,26 @@ function image_exists() {
     local tag="$1"
     local arch="$2"
 
+    if [[ -z "${REGISTRY-}" ]]; then
+        warn "REGISTRY is not set, cannot inspect container registry"
+        return 1
+    fi
+
+    if [[ -z "${GITHUB_REPOSITORY-}" ]]; then
+        warn "GITHUB_REPOSITORY is not set, cannot inspect container registry"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_USERNAME-}" ]]; then
+        warn "REGISTRY_USERNAME is not set, cannot inspect container registry"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_PASSWORD-}" ]]; then
+        warn "REGISTRY_PASSWORD is not set, cannot inspect container registry"
+        return 1
+    fi
+
     local image
     image="docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}:${tag}-${arch}"
 
@@ -63,6 +103,26 @@ function image_exists() {
 
 function manifest_update() {
     local tag="$1"
+
+    if [[ -z "${REGISTRY-}" ]]; then
+        warn "REGISTRY is not set, cannot list container registry tags"
+        return 1
+    fi
+
+    if [[ -z "${GITHUB_REPOSITORY-}" ]]; then
+        warn "GITHUB_REPOSITORY is not set, cannot list container registry tags"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_USERNAME-}" ]]; then
+        warn "REGISTRY_USERNAME is not set, cannot list container registry tags"
+        return 1
+    fi
+
+    if [[ -z "${REGISTRY_PASSWORD-}" ]]; then
+        warn "REGISTRY_PASSWORD is not set, cannot list container registry tags"
+        return 1
+    fi
 
     local list_tags
     if ! list_tags=$(skopeo --insecure-policy list-tags --creds "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" "docker://${REGISTRY,,}/${GITHUB_REPOSITORY,,}"); then

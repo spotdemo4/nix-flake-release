@@ -25,6 +25,10 @@ function git_latest_tag() {
     git describe --tags --abbrev=0
 }
 
+function git_user() {
+    git config user.name
+}
+
 function git_changelog() {
     local tag="$1"
 

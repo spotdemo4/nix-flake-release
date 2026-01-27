@@ -41,6 +41,7 @@
         deps = with pkgs; [
           file
           findutils
+          forgejo-cli
           gh
           gnused
           jq
