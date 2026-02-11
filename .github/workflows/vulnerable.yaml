@@ -7,10 +7,11 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   nix:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@b3297f8312873ecb1f56efc86777c7a164c16e70 # v1.25.0
@@ -21,7 +22,7 @@ jobs:
         run: flake-checker -f
 
   actions:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@b3297f8312873ecb1f56efc86777c7a164c16e70 # v1.25.0

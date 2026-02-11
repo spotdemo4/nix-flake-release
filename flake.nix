@@ -57,7 +57,6 @@
       {
         devShells = {
           default = pkgs.mkShell {
-            name = "dev";
             shellHook = pkgs.shellhook.ref;
             packages =
               with pkgs;
@@ -75,28 +74,24 @@
           };
 
           bump = pkgs.mkShell {
-            name = "bump";
             packages = with pkgs; [
               bumper
             ];
           };
 
           release = pkgs.mkShell {
-            name = "release";
             packages = with pkgs; [
               nix-flake-release
             ];
           };
 
           update = pkgs.mkShell {
-            name = "update";
             packages = with pkgs; [
               renovate
             ];
           };
 
           vulnerable = pkgs.mkShell {
-            name = "vulnerable";
             packages = with pkgs; [
               # nix
               flake-checker
@@ -199,6 +194,7 @@
               makeWrapper
               shellcheck
             ];
+
             runtimeInputs = deps;
 
             unpackPhase = ''
