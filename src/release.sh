@@ -31,13 +31,13 @@ function release_asset() {
 }
 
 function release_type() {
-    if [[ "${GITHUB_TYPE-}" == "gitea" ]]; then
+    if [[ "${GIT_TYPE-}" == "gitea" ]]; then
         echo "gitea"
         return 0
-    elif [[ "${GITHUB_TYPE-}" == "forgejo" ]]; then
+    elif [[ "${GIT_TYPE-}" == "forgejo" ]]; then
         echo "forgejo"
         return 0
-    elif [[ "${GITHUB_TYPE-}" == "github" ]]; then
+    elif [[ "${GIT_TYPE-}" == "github" ]]; then
         echo "github"
         return 0
     fi

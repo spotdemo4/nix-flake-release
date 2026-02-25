@@ -72,9 +72,15 @@ function rename() {
     local filename
     local final
     filename=$(basename "${filepath}")
-    if [[ "$filename" == *.* ]]; then
+    if [[ "${filename}" == *.* ]]; then
         fileext="${filename##*.}"
-        final="${tmpdir}/${name}_${version}_${os}_${arch}.${fileext}"
+
+        if [[ "${fileext,,}" == "appimage" ]]; then
+            # AppImage is only supported on Linux
+            final="${tmpdir}/${name}_${version}_${arch}.${fileext}"
+        else
+            final="${tmpdir}/${name}_${version}_${os}_${arch}.${fileext}"
+        fi
     else
         final="${tmpdir}/${name}_${version}_${os}_${arch}"
     fi

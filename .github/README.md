@@ -2,18 +2,20 @@
 
 [![check](https://img.shields.io/github/actions/workflow/status/spotdemo4/flake-release/check.yaml?branch=main&logo=github&logoColor=%23bac2de&label=check&labelColor=%23313244)](https://github.com/spotdemo4/flake-release/actions/workflows/check.yaml)
 [![vulnerable](https://img.shields.io/github/actions/workflow/status/spotdemo4/flake-release/vulnerable.yaml?branch=main&logo=github&logoColor=%23bac2de&label=vulnerable&labelColor=%23313244)](https://github.com/spotdemo4/flake-release/actions/workflows/vulnerable.yaml)
+[![nix](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fspotdemo4%2Fflake-release%2Frefs%2Fheads%2Fmain%2Fflake.lock&query=%24.nodes.nixpkgs.original.ref&logo=nixos&logoColor=%23bac2de&label=channel&labelColor=%23313244&color=%234d6fb7)](https://nixos.org/)
+[![flakehub](https://img.shields.io/endpoint?url=https://flakehub.com/f/spotdemo4/flake-release/badge&labelColor=%23313244)](https://flakehub.com/flake/spotdemo4/flake-release)
 
 Generates release artifacts for packages in a nix flake:
 
-- `dockerTools.buildLayeredImage` & `dockerTools.streamLayeredImage` will be uploaded to a container registry
+- `dockerTools.buildLayeredImage` & `dockerTools.streamLayeredImage` can be uploaded to a container registry
 - packages that contain only executable binaries will be compressed & uploaded to a release directly
-- packages that depend on nix store paths can be bundled into an AppImage (`appimage`), Arx tarball (`arx`), or bundled with a portable nix binary (`portable`)
+- packages that depend on nix store paths can be bundled into an AppImage (`appimage`), Arx tarball (`arx`), or with a portable nix binary (`portable`)
 
 Works with GitHub, Gitea & Forgejo
 
 ## Usage
 
-```elm
+```sh
 flake-release [packages...]
 ```
 
@@ -21,7 +23,7 @@ flake-release [packages...]
 
 | Variable          | Description                     | Example                                                                                                                                                               |
 | ----------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GITHUB_TYPE       | Host type for release           | `github` / `gitea` / `forgejo`                                                                                                                                        |
+| GIT_TYPE          | Host type for release           | `github` / `gitea` / `forgejo`                                                                                                                                        |
 | GITHUB_REPOSITORY | Repository to push releases     | `spotdemo4/flake-release`                                                                                                                                             |
 | GITHUB_SERVER_URL | Server to push releases         | `https://github.com`                                                                                                                                                  |
 | GITHUB_ACTOR      | User for Gitea & Forgejo        | `github-actions[bot]`                                                                                                                                                 |
@@ -52,7 +54,7 @@ flake-release [packages...]
 
 ### Nix
 
-```elm
+```sh
 nix run github:spotdemo4/flake-release
 ```
 
@@ -99,7 +101,7 @@ docker run -it \
 
 requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo/), [manifest-tool](https://github.com/estesp/manifest-tool), [gh](https://cli.github.com/) (github), [tea](https://gitea.com/gitea/tea) (gitea), [fj](https://codeberg.org/forgejo-contrib/forgejo-cli) (forgejo)
 
-```elm
+```sh
 git clone https://github.com/spotdemo4/flake-release &&
 ./flake-release/src/flake-release.sh
 ```

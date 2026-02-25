@@ -111,45 +111,40 @@ for PACKAGE in "${PACKAGES[@]}"; do
         continue
     fi
 
-    # `dockerTools.buildLayeredImage`
+    # `dockerTools` image
     if
         [[ -n "${IMAGE_NAME}" ]] &&
         [[ -n "${IMAGE_TAG}" ]] &&
-        [[ -f "${STORE_PATH}" ]] &&
-        [[ "${STORE_PATH}" == *".tar.gz" ]];
+        [[ -f "${STORE_PATH}" ]];
     then
         info "detected as image $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
 
+        if [[ "$(host_os)" == "darwin" ]]; then
+            warn "skipping building image for darwin"
+            continue
+        fi
+
         IMAGES="true"
+
+        # `dockerTools.buildLayeredImage`
+        if [[ "${STORE_PATH}" == *".tar.gz" ]]; then
+            info "image type: buildLayeredImage"
+        
+        # `dockerTools.streamLayeredImage`
+        elif [[ -x "${STORE_PATH}" ]]; then
+            info "image type: streamLayeredImage, zipping"
+            STORE_PATH=$(image_gzip "${STORE_PATH}")
+
+        else
+            warn "could not determine image type"
+            continue
+        fi
+
         IMAGE_ARCH=$(image_arch "${STORE_PATH}")
         info "arch: ${IMAGE_ARCH}"
 
         if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
             warn "image already exists, skipping upload"
-            continue
-        fi
-
-        if ! image_upload "${STORE_PATH}" "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
-            warn "upload failed"
-            continue
-        fi
-
-    # `dockerTools.streamLayeredImage`
-    elif
-        [[ -n "${IMAGE_NAME}" ]] &&
-        [[ -n "${IMAGE_TAG}" ]] &&
-        [[ -f "${STORE_PATH}" ]] &&
-        [[ -x "${STORE_PATH}" ]];
-    then
-        info "detected as image stream $(bold "${IMAGE_NAME}:${IMAGE_TAG}")"
-
-        IMAGES="true"
-        IMAGE_ZIPPED=$(image_gzip "${STORE_PATH}")
-        IMAGE_ARCH=$(image_arch "${IMAGE_ZIPPED}")
-        info "arch: ${IMAGE_ARCH}"
-
-        if image_exists "${IMAGE_TAG}" "${IMAGE_ARCH}"; then
-            info "image already exists, skipping upload"
             continue
         fi
 
@@ -198,7 +193,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
             continue
         fi
 
-        if ! ARCHIVE=$(nix_bundle "${PACKAGE}" "${BUNDLE}"); then
+        if ! ARCHIVE=$(nix_bundle "${PACKAGE}" "${BUNDLE}" "$(host_os)"); then
             warn "bundling failed"
             continue
         fi
