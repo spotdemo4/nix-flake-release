@@ -97,11 +97,11 @@ docker run -it \
 
 ### Downloads
 
-#### [flake-release.sh](/src) - bash script
+#### [flake-release.sh](https://github.com/spotdemo4/flake-release/releases/download/v0.11.5/flake-release.sh) - bash script
 
 requires [jq](https://jqlang.org/), [skopeo](https://github.com/containers/skopeo/), [manifest-tool](https://github.com/estesp/manifest-tool), [gh](https://cli.github.com/) (github), [tea](https://gitea.com/gitea/tea) (gitea), [fj](https://codeberg.org/forgejo-contrib/forgejo-cli) (forgejo)
 
 ```sh
-git clone https://github.com/spotdemo4/flake-release &&
-./flake-release/src/flake-release.sh
+chmod +x flake-release.sh &&
+./flake-release.sh
 ```
